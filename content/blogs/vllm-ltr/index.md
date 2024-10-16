@@ -1,6 +1,6 @@
 +++
 title = "Efficient LLM Scheduling by Learning to Rank"
-date = 2024-05-20T12:00:00-08:00
+date = 2024-10-25T12:00:00-08:00
 authors = ["Yichao Fu", "Siqi Zhu", "Runlong Su", "Aurick Qiao", "Ion Stoica", "Hao Zhang"]
 author = "Yichao Fu, Siqi Zhu, Runlong Su, Aurick Qiao, Ion Stoica, Hao Zhang"
 ShowReadingTime = true
@@ -11,11 +11,11 @@ draft = false
       caption = "The workflow of serving 2 LLMs with flexible spatal-temporal multiplexing."
 +++
 
-{{< socialBadges arxiv-index="2404.02015" github="hao-ai-lab/MuxServe" >}}
+{{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
 
 {{< justify >}}
 
-**TL;DR:** Efficiently serving *multiple* LLMs have emerged as a crucial and time-sensitive demand within the community, especially for LLM endpoint providers. In this blog, we show that the dynamic popularity of LLMs and the unbalanced resource utilization of LLM inference can be leveraged to achieve high GPU utilization and reduce serving cost. We introduce MuxServe, a novel serving system that efficiently serves multiple LLMs with flexible spatial-temporal multiplexing. MuxServe outperforms the spatial partitioning and temporal multiplexing baselines by up to $1.8\times$ in throughput and up to $2.9\times$ in SLO attainment on synthetic workloads.
+**TL;DR:** In Large Language Model (LLM) inference, the output length of an LLM request is typically regarded as not known a priori. Consequently, most LLM serving systems employ a simple First-come-first-serve (FCFS) scheduling strategy, leading to Head-Of-Line (HOL) blocking and reduced throughput and service quality. We reexamine this assumption in this work -- we show that, although predicting the exact generation length of each request is infeasible, it is possible to predict the relative ranks of output lengths in a batch of requests, using *learning to rank*. The ranking information offers valuable guidance for scheduling requests. Building on this insight, we develop a novel scheduler for LLM inference and serving that can approximate the shortest-job-first (SJF) schedule better than existing approaches. We integrate this scheduler with the state-of-the-art LLM serving system and show significant performance improvement in several important applications: $2.8\times$ lower latency in chatbot serving and $6.5\times$ higher throughput in synthetic data generation.
 
 {{< /justify >}}
 
@@ -140,13 +140,14 @@ MuxServe can be a promising solution for LLM endpoint providers to efficiently s
 <!-- MuxServe outperforms the spatial partitioning and temporal multiplexing baselines by up to $1.8\times$ in throughput and up to $2.9\times$ in SLO attainment on synthetic workloads. -->
 
 ## Acknowledgement
-We would like to thank Junda Chen and Lanxiang Hu for providing insightful feedback to our blog. 
+Not Implemented Yet.
 
 ## Citation
 ```
-@inproceedings{duanmuxserve,
-  title={MuxServe: Flexible Spatial-Temporal Multiplexing for Multiple LLM Serving},
-  author={Duan, Jiangfei and Lu, Runyu and Duanmu, Haojie and Li, Xiuhong and Zhang, Xingcheng and Lin, Dahua and Stoica, Ion and Zhang, Hao},
-  booktitle={Forty-first International Conference on Machine Learning}
+@article{fu2024efficient,
+  title={Efficient LLM Scheduling by Learning to Rank},
+  author={Fu, Yichao and Zhu, Siqi and Su, Runlong and Qiao, Aurick and Stoica, Ion and Zhang, Hao},
+  journal={arXiv preprint arXiv:2408.15792},
+  year={2024}
 }
 ```
