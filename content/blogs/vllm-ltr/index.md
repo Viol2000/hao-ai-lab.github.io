@@ -1,7 +1,7 @@
 +++
 title = "Efficient LLM Scheduling by Learning to Rank"
 date = 2024-10-10T12:00:00-08:00
-authors = ["Siqi Kou*", "Lanxiang Hu*", "Zhezhi He", "Zhijie Deng", "Hao Zhang"]
+authors = ["Yichao Fu", "Siqi Zhu", "Runlong Su", "Aurick Qiao", "Ion Stoica", "Hao Zhang"]
 author = "Yichao Fu, Siqi Zhu, Runlong Su, Aurick Qiao, Ion Stoica, Hao Zhang"
 ShowReadingTime = true
 draft = false
@@ -22,7 +22,8 @@ draft = false
 
 {{< justify >}}
 
-**TL;DR:** LLMs have been traditionally regarded as sequential decoders, decoding one token after another. In this blog, we show pretrained LLMs can be easily taught to operate as efficient parallel decoders. We introduce **Consistency Large Language Models (CLLMs)**, a new family of parallel decoders capable of reducing inference latency by efficiently decoding an $n$-token sequence per inference step. Our research shows this process -- mimicking human cognitive process of forming complete sentences in mind before articulating word by word -- can be effectively learned by simply finetuning pretrained LLMs. Specifically, CLLMs are trained to perform parallel decoding by mapping any randomly initialized $n$-token sequence to the same result yielded by autoregressive (AR) decoding in as few steps as possible. Experiment results show CLLMs obtained using our proposed method are highly effective, showing $2.4\times$ to $3.4\times$ improvements in generation speed, in par with or even beter than other fast inference techniques like Medusa2 and Eagle, yet require no additional memory cost to accomodate auxiliary model components at inference time.
+**TL;DR:** In Large Language Model (LLM) inference, the output length of an LLM request is typically regarded as not known a priori. Consequently, most LLM serving systems employ a simple First-come-first-serve (FCFS) scheduling strategy, leading to Head-Of-Line (HOL) blocking and reduced throughput and service quality. We reexamine this assumption -- we show that, although predicting the exact generation length of each request is infeasible, it is possible to predict the *relative ranks of output lengths* in a batch of requests, using *learning to rank*. The ranking information offers valuable guidance for scheduling requests. Building on this insight, we develop a novel scheduler for LLM inference and serving that can approximate the shortest-job-first (SJF) schedule better than existing approaches. We integrate this scheduler with the state-of-the-art LLM serving system and show significant performance improvement in several important applications: $2.8\times$ lower latency in chatbot serving and $6.5\times$ higher throughput in synthetic data generation. 
+
 {{< /justify >}}
 
 {{< image src="img/baseline_vs_cllm_gsm8k_best_acc_demo.gif" alt="cllm-gsm8k-acc-demo" width="120%" title="Figure 1: Demo of $\sim 3 \times$ speedup by CLLM-ABEL-7B-001 in comparison with baseline [ABEL-7B-001](https://github.com/GAIR-NLP/abel) using Jacobi decoding on GSM8K.">}}
@@ -201,23 +202,21 @@ We observe that CLLMs acquire a crucial linguistic concept through training – 
 
 ## Get started
 {{< justify >}}
-Please see [our paper](http://arxiv.org/abs/2403.00835) for more details. We also invite you to try out [our codebase](https://github.com/hao-ai-lab/Consistency_LLM) and [CLLM checkpoints](https://huggingface.co/cllm)!
+Please see [our paper](https://arxiv.org/abs/2408.15792) for more details. We also invite you to try out [our codebase](https://github.com/hao-ai-lab/vllm-ltr) and [checkpoints](https://huggingface.co/LLM-ltr/)!
 {{< /justify >}}
 
 ## Acknowledgement
 
-We would like to thank Yang Song, Canwen Xu, Yonghao Zhuang, Dacheng Li and Yichao Fu for providing insightful feedback.
+Not Implemented Yet.
 
 
 ## Citation
 
 ```
-@misc{kou2024cllms,
-      title={CLLMs: Consistency Large Language Models}, 
-      author={Siqi Kou and Lanxiang Hu and Zhezhi He and Zhijie Deng and Hao Zhang},
-      year={2024},
-      eprint={2403.00835},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
+@article{fu2024efficient,
+  title={Efficient LLM Scheduling by Learning to Rank},
+  author={Fu, Yichao and Zhu, Siqi and Su, Runlong and Qiao, Aurick and Stoica, Ion and Zhang, Hao},
+  journal={arXiv preprint arXiv:2408.15792},
+  year={2024}
 }
 ```
