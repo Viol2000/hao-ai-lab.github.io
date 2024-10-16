@@ -31,8 +31,31 @@ draft = false
 
 ## Background: Learning To Rank
 
+In background, we introduce several background concepts in learning to rank, which are essential for understanding our methodology.
+
+### Kendall Rank Correlation Coefficient
+
 {{< justify >}}
-Large language models (LLMs) are transforming the landscape of human lives, from programming to offering legal and health advice. However, during inference, LLMs generate responses token by token using AR decoding as shown in Figure 1, leading to high latency for longer responses. Using AR decoding, it often necessitates architectural modifications, auxiliary components, or draft models, to speed up inference by generating more than one token at a time. 
+Kendall's Tau coefficient, specifically the Tau-b variant we use, measures the correlation between two rankings. Its value ranges from 
+$-1$ to $1$, where $1$ indicates perfect agreement between two rankings, $-1$ indicates complete disagreement (reversed rankings), and $0$ indicates no correlation. The formulation of Kendall's Tau is given as follows:
+$\tau=\frac{N_c-N_d}{\sqrt{\left(N_0-N_1\right)\left(N_0-N_2\right)}}$
+where $N_c$ and $N_d$ are the number of concordant and discordant pairs, respectively, in the two rankings. $N_0=n(n-1)/2$, where $n$ is the total number of items. $N_1$ and $N_2$ account for tied values in each ranking: $N_1=\sum_i t_i\left(t_i-1\right) / 2$ and $N_2=\sum_j u_j\left(u_j-1\right) / 2$, where $t_i$ is the number of tied values in the $i^{th}$ group of ties for the first quantity and $u_j$ is the number of tied values in the $j^{th}$ group of ties for the second quantity~\cite{enwiki:1222948294}. It's important to note that tied pairs are considered neither concordant nor discordant in this calculation.
+{{< /justify >}}
+
+### Learning to Rank
+
+{{< justify >}}
+Learning to rank is a machine learning approach applied to supervised ranking data. It is widely used in recommendation systems, search engine and other research areas. Learning to rank typically takes one of three forms: pointwise, pairwise, and listwise. Pointwise turns the ranking problem into regression, classification or ordinal regression. Pairwise method learns the relative ranking for each pair of items. Listwise learns the ranking of lists of samples in a dataset. 
+{{< /justify >}}
+
+### ListMLE Loss
+
+{{< justify >}}
+ListMLE is a listwise ranking loss of particular interest in our paper. It minimizes the likelihood function defined $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
+
+$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $   
+
+Here, \( P(y \mid x ; g) \) represents the probability of the permutation \( y \) given the input \( x \) and the scoring function \( g \). \( x_{y(i)} \) denotes the element in \( x \) that corresponds to the \( i \)-th position in the permutation \( y \). The idea is to maximize the likelihood of the correct ranking \( y \) by using the scoring function \( g \) to predict the ranking of the input \( x \). The loss function \( \mathcal{\phi}(g(x),y) \) minimizes the negative log-likelihood of this probability, encouraging the model to predict a ranking close to the true ranking. ListMLE's focus on list ranking aligns with Kendall's Tau, which measures the correlation between two rankings. This ensures that minimizing the loss can help improve Kendall's Tau.
 {{< /justify >}}
 
 {{< image src="img/clm_objective.png" alt="autoregressive" width="60%" title="Figure 2: illustration of conventional AR decoding: one token is generated at a time.">}}
