@@ -1,8 +1,8 @@
 +++
-title = "Consistency Large Language Models: A Family of Efficient Parallel Decoders"
-date = 2024-05-06T12:00:00-08:00
+title = "Efficient LLM Scheduling by Learning to Rank"
+date = 2024-10-20T12:00:00-08:00
 authors = ["Siqi Kou*", "Lanxiang Hu*", "Zhezhi He", "Zhijie Deng", "Hao Zhang"]
-author = "Siqi Kou*, Lanxiang Hu*, Zhezhi He, Zhijie Deng, Hao Zhang"
+author = "Yichao Fu, Siqi Zhu, Runlong Su, Aurick Qiao, Ion Stoica, Hao Zhang"
 ShowReadingTime = true
 draft = false
 [socialIcons]
@@ -11,7 +11,7 @@ draft = false
       url = "https://twitter.com"
     [[socialIcons.icon]]
       name = "github"
-      url = "https://github.com/hao-ai-lab/Consistency_LLM"
+      url = "https://github.com/hao-ai-lab/vllm-ltr"
 [cover]
       image = "img/objective_illustration_global.jpg"
       alt = "jacobi trajectory"
