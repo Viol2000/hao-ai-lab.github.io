@@ -13,9 +13,9 @@ draft = false
       name = "github"
       url = "https://github.com/hao-ai-lab/vllm-ltr"
 [cover]
-      image = "img/objective_illustration_global.jpg"
-      alt = "jacobi trajectory"
-      caption = "An instance of Jacobi trajectory and an illustration of the global consistency loss learning objective."
+      image = "img/HOL.jpg"
+      alt = "HOL"
+      caption = "An illustration of Head-of-line."
 +++
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
@@ -26,10 +26,10 @@ draft = false
 
 {{< /justify >}}
 
-{{< image src="img/baseline_vs_cllm_gsm8k_best_acc_demo.gif" alt="cllm-gsm8k-acc-demo" width="120%" title="Figure 1: Demo of $\sim 3 \times$ speedup by CLLM-ABEL-7B-001 in comparison with baseline [ABEL-7B-001](https://github.com/GAIR-NLP/abel) using Jacobi decoding on GSM8K.">}}
+{{< image src="img/HOL.jpg" alt="HOL" width="120%" title="Figure 1: A long request can block short requests and introduce severe HOL blocking and high latency. We assume there is no prefill time, and the system takes 1 second to generate 1 token. With a First-come-first-serve (FCFS) schedule, the long request \textit{R0}, which arrives first and takes 10 seconds to generate 10 tokens, will block subsequent shorter requests \textit{R1} and \textit{R2} for 10 seconds. Hence the latencies of \textit{R0},  \textit{R1}, and \textit{R2} are $10 / 10 = 1, (10 + 2) / 2 = 6, (10+2+1)/1=13 \mbox{ s / token}$, respectively, perceived by users, with an average latency of $(1+6+13)/3 = 6.67 \mbox{ s / token}$. By contrast, prioritizing shortest requests yields an average latency of $(1.3+1.5+1)/3=1.27 \mbox{ s / token}$ -- a $5.3\times$ reduction in average latency.">}}
 
 
-## Background: Jacobi Decoding
+## Background: Learning To Rank
 
 {{< justify >}}
 Large language models (LLMs) are transforming the landscape of human lives, from programming to offering legal and health advice. However, during inference, LLMs generate responses token by token using AR decoding as shown in Figure 1, leading to high latency for longer responses. Using AR decoding, it often necessitates architectural modifications, auxiliary components, or draft models, to speed up inference by generating more than one token at a time. 
