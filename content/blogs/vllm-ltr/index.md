@@ -1,6 +1,6 @@
 +++
 title = "Efficient LLM Scheduling by Learning to Rank"
-date = 2024-10-20T12:00:00-08:00
+date = 2024-10-10T12:00:00-08:00
 authors = ["Siqi Kou*", "Lanxiang Hu*", "Zhezhi He", "Zhijie Deng", "Hao Zhang"]
 author = "Yichao Fu, Siqi Zhu, Runlong Su, Aurick Qiao, Ion Stoica, Hao Zhang"
 ShowReadingTime = true
@@ -18,7 +18,7 @@ draft = false
       caption = "An instance of Jacobi trajectory and an illustration of the global consistency loss learning objective."
 +++
 
-{{< socialBadges arxiv-index="2403.00835" github="hao-ai-lab/Consistency_LLM" >}}
+{{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
 
 {{< justify >}}
 
