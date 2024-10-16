@@ -19,12 +19,11 @@ draft = false
 
 {{< /justify >}}
 
-## Background: LLM Serving Characteristics
+## Background: Learning To Rank
 Large language models (LLMs) are transforming the AI industry. As organizations today are rapidly training and deploying various versions and sclaes of LLMs as endpoints for their users, the efficient serving of *multiple* LLMs has emerged as a crucial and time-sensitive demand within the community. The ultimate goal is to improve the GPU utilization, thus reducing serving cost. Efficient serving of *multiple* LLMs needs to consider the following characteristics of LLM serving.
 
-### Dynamic LLM Popularity
-Figure 1 displays the serving traffic of multiple LLMs over 20 days, as observed from an LLM endpoint provider.
-It is evident that the popularity varies significantly, and each LLM experiences distinct and changing arrival rates, influenced by factors such as output quality, response speed, and usage patterns. Popular LLMs (blue line) consistently receive a considerably higher volume of serving traffic compared to other LLMs, resulting in higher resources demands. In contrast, less popular LLMs may exhibit consistently low arrival rates throughout the observed period, occupying fewer resources. This dynamic and diverse nature of request arrival rates emphasizes the need for a flexible and adaptive approach to efficiently serve multiple LLMs based on their individual popularity and demand, which would translate into significant cost reduction for LLM endpoint providers.
+### ListMLE
+ListMLE. ListMLE [37] is a listwise ranking loss of particular interest in our paper. It minimizes the likelihood function defined.
 
 {{< image src="img/traffic.jpg" alt="llm_popularity" width="80%" title="Figure 1. The dynamic request arrival rates of different LLMs over a 20 day period. LLMs experience distinct and changing arrival rates. Among them, popular LLMs (blue line) consistently receive a considerably higher volume of serving traffic, resulting in higher resources demands.">}}
 
