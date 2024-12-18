@@ -94,7 +94,7 @@ This approach prevents request-level starvation, improves $max\_waiting\_time$, 
 
 ### Main results
 
-Figure 4 compares the latency of our ranking method against four baselines using ShareGPT and LMSYS-Chat-1M datasets across increasing arrival rates. At 64 requests/second, our method achieves up to 6.9x lower mean latency than FCFS and 1.5x-1.9x lower than Perception Only (PO).
+Figure 4 compares the latency of our ranking method against four baselines using two real-world datasets (ShareGPT and LMSYS-Chat-1M) across increasing arrival rates. We evaluated these methods on two latest models: LLaMA3 8B and 70B. At 64 requests/second, our method achieves up to 6.9x lower mean latency than FCFS and 1.5x-1.9x lower than Prompting Oracle (PO).
 
 Both [Multi-Level Feedback Queue](https://arxiv.org/abs/2305.05920) (MLFQ, a traditional system scheduling approach) and [PO](https://dl.acm.org/doi/abs/10.5555/3666122.3668981) (which asks the LLM itself to predict its generation length) suffer from severe HOL blocking because they require initial processing of all requests: PO must run requests through the LLM, while MLFQ needs to process requests before assigning priority levels. The [classification approach](https://arxiv.org/abs/2306.06000), which sorts requests into length buckets, optimizes for high accuracy rather than ranking, missing opportunities for optimization.
  
