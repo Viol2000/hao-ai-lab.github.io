@@ -37,7 +37,9 @@ LLMs are increasingly becoming the backbone of many Internet services and applic
 Learning to rank is a machine learning approach that learns to order items based on supervised ranking data. Among various ranking methods, we focus on listwise approaches that directly optimize the order of all items in a list. One such approach is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function of particular interest in our paper.
 
 ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
+
 $P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
+
 Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. The idea is to maximize the likelihood of the correct ranking $y$ by using scoring function $g$ to predict the ranking of input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict rankings close to the true ordering.
 
 ## LLM Scheduling by Learning-To-Rank
