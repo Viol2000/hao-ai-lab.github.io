@@ -56,7 +56,7 @@ Here, \( P(y \mid x ; g) \) represents the probability of the permutation \( y \
 
 We show that the precise generation length is not needed. An accurate generation length ranking prediction is enough. 
 
-{{< image src="img/ranking.jpg" alt="HOL" width="120%" title="Figure2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
+{{< image src="img/ranking.jpg" alt="ranking" width="120%" title="Figure2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
 
 
 ### Method
