@@ -22,7 +22,7 @@ draft = false
 
 {{< justify >}}
 
-**TL;DR:** In Large Language Model (LLM) inference, the output length of an LLM request is typically regarded as not known a priori. Consequently, most LLM serving systems employ a simple First-come-first-serve (FCFS) scheduling strategy, leading to Head-Of-Line (HOL) blocking and reduced throughput and service quality. We reexamine this assumption -- we show that, although predicting the exact generation length of each request is infeasible, it is possible to predict the *relative ranks of output lengths* in a batch of requests, using *learning to rank*. The ranking information offers valuable guidance for scheduling requests. Building on this insight, we develop a novel scheduler for LLM inference and serving that can approximate the shortest-job-first (SJF) schedule better than existing approaches. We integrate this scheduler with the state-of-the-art LLM serving system and show significant performance improvement in several important applications: $2.8\times$ lower latency in chatbot serving and $6.5\times$ higher throughput in synthetic data generation. 
+**TL;DR:** Traditional Large Language Model (LLM) serving systems use first-come-first-serve scheduling since the exact output lengths are unpredictable. However, we developed a *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient scheduling policy that reduced chatbot latency by 2.8x and increased data generation throughput by 6.5x.
 
 {{< /justify >}}
 
