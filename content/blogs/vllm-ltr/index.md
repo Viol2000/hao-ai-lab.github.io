@@ -78,14 +78,19 @@ The model training process takes less than 5mins on 10K data, which can be obtai
 
 It is well known that while SJF/SRTF scheduling can improve overall latency, it may lead to starvation for long requests, causing users to wait excessively for responses. Different from previous fairness-promoting design [39], which focuses on the fairness between different clients, we propose a *max_waiting_time* fairness metric to evaluate the fairness at per-request level (hence reflecting per-user satisfaction). We define max_waiting_time fairness by considering both Time To First Token (TTFT) and Time Per Output Token (TPOT)[12] in LLM serving as follows: 
 
- $max_waiting_time=max(TTFT,max(TPOT))$
+ $max\_waiting\_time=max(TTFT,max(TPOT))$
 
-Intuitively, max_waiting_time characterizes the maximum time interval a user experiences between receiving two tokens after sending a request to the server. A larger max_waiting_time indicates a longer waiting time for the user to obtain a response, signifying more severe starvation.
+Intuitively, $max\_waiting\_time$ characterizes the maximum time interval a user experiences between receiving two tokens after sending a request to the server. A larger max_waiting_time indicates a longer waiting time for the user to obtain a response, signifying more severe starvation. 
 
+To mitigate starvation, our algorithm implements the following mechanism: 1) For each scheduling step, we increment a request’s starvation count if it is not executed. 2) When a request's starvation count reaches a pre-defined threshold, we will promote
+ this request's priority by allocating "quantum" of execution time. 3) The request maintains this elevated
+ priority until it exhausts its allocated quantum. This simple yet effective method
+ prevents starvation at the request level, improves $max\_waiting\_time$, and ensures user satisfaction,
+ as demonstrated in our experiments.
 
 ##  Experiments
 
-### Results
+### Main results
 
 Fig. 3 compares the latency of our proposed ranking method with four baseline methods on ShareGPT
  and LMSYS-Chat-1M datasets with increasing arrival rates [2, 14, 12]. Under a rate of 64 requests/sec
@@ -103,6 +108,8 @@ ond, our method improves mean latency by up to 6.9x compared to FCFS and 1.5x–
 The predictor adds minimal overhead - less than 2% additional processing time across all settings. We use a 350M parameter predictor for the 70B model and a 125M predictor for the 8B model. While request processing involves both prefill and decode steps, the OPT predictor only performs prefill operations. The overhead increases with longer context lengths, which explains the higher overhead observed on the ShareGPT dataset.
 
 {{< image src="img/overhead.png" alt="overhead" width="100%" title="Overhead of the predictor">}}
+
+More detailed results can be found in our paper.
 
 ## Get started
 {{< justify >}}
