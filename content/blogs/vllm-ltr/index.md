@@ -76,18 +76,18 @@ The training data consists of prompt-ranking pairs collected from actual serving
 
 ### Starvation Prevention
 
-While SJF/SRTF scheduling can improve overall latency, it risks causing starvation for long requests, where users wait excessively for responses. Unlike previous fairness designs that focus on [inter-client fairness](https://www.usenix.org/conference/osdi24/presentation/sheng), we propose a $max\_waiting\_time$ metric to evaluate fairness at the per-request level, directly reflecting individual user satisfaction. This metric considers both Time To First Token (TTFT) and Time Per Output Token (TPOT) in LLM serving:
+While SJF/SRTF scheduling can improve overall latency, it risks causing starvation for long requests, where users wait excessively for responses. Unlike previous fairness designs that focus on [inter-client fairness](https://www.usenix.org/conference/osdi24/presentation/sheng), we propose a max_waiting_time metric to evaluate fairness at the per-request level, directly reflecting individual user satisfaction. This metric considers both Time To First Token (TTFT) and Time Per Output Token (TPOT) in LLM serving:
 
-$max\_waiting\_time = max(TTFT, max(TPOT))$
+max_waiting_time = max(TTFT, max(TPOT))
 
-This metric characterizes the maximum time interval a user experiences between receiving tokens after submitting a request. A larger $max\_waiting\_time$ indicates longer waiting periods, signaling more severe starvation.
+This metric characterizes the maximum time interval a user experiences between receiving tokens after submitting a request. A larger max_waiting_time indicates longer waiting periods, signaling more severe starvation.
 
 To mitigate starvation, our algorithm implements three mechanisms:
 - Increment a request's starvation count when it isn't executed in a scheduling step
 - Promote a request's priority by allocating "quantum" execution time once its starvation count reaches a threshold
 - Maintain the elevated priority until the request exhausts its quantum
 
-This approach prevents request-level starvation, improves $max\_waiting\_time$, and enhances user satisfaction, as our experiments (paper §5.5) demonstrate.
+This approach prevents request-level starvation, improves max_waiting_time, and enhances user satisfaction, as our experiments (paper §5.5) demonstrate.
 
 
 ##  Experiments
