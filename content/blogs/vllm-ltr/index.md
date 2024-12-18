@@ -106,7 +106,7 @@ The predictor adds minimal overhead - less than 2% additional processing time ac
 
 {{< image src="img/overhead.png" alt="overhead" width="100%" title="Figure 5: Overhead of the predictor">}}
 
-More detailed results can be found in the \S5 of our paper.
+More detailed results can be found in the §5 of our paper.
 
 ## Get started
 
