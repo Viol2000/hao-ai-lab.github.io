@@ -26,23 +26,18 @@ draft = false
 
 {{< /justify >}}
 
-{{< image src="img/HOL.jpg" alt="HOL" width="120%" title="Figure 1: A long request can block short requests and introduce severe HOL blocking and high latency. We assume there is no prefill time, and the system takes 1 second to generate 1 token. With a First-come-first-serve (FCFS) schedule, the long request \textit{R0}, which arrives first and takes 10 seconds to generate 10 tokens, will block subsequent shorter requests \textit{R1} and \textit{R2} for 10 seconds. Hence the latencies of \textit{R0},  \textit{R1}, and \textit{R2} are $10 / 10 = 1, (10 + 2) / 2 = 6, (10+2+1)/1=13 \mbox{ s / token}$, respectively, perceived by users, with an average latency of $(1+6+13)/3 = 6.67 \mbox{ s / token}$. By contrast, prioritizing shortest requests yields an average latency of $(1.3+1.5+1)/3=1.27 \mbox{ s / token}$ -- a $5.3\times$ reduction in average latency.">}}
 
 
-## Background: Learning To Rank
+
+## Background: Head-of-line Blocking in LLM Serving 
+
 
 In background, we introduce several background concepts in learning to rank, which are essential for understanding our methodology.
 
-### Kendall Rank Correlation Coefficient
 
-{{< justify >}}
-Kendall's Tau coefficient, specifically the Tau-b variant we use, measures the correlation between two rankings. Its value ranges from 
-$-1$ to $1$, where $1$ indicates perfect agreement between two rankings, $-1$ indicates complete disagreement (reversed rankings), and $0$ indicates no correlation. The formulation of Kendall's Tau is given as follows:
-$\tau=\frac{N_c-N_d}{\sqrt{\left(N_0-N_1\right)\left(N_0-N_2\right)}}$
-where $N_c$ and $N_d$ are the number of concordant and discordant pairs, respectively, in the two rankings. $N_0=n(n-1)/2$, where $n$ is the total number of items. $N_1$ and $N_2$ account for tied values in each ranking: $N_1=\sum_i t_i\left(t_i-1\right) / 2$ and $N_2=\sum_j u_j\left(u_j-1\right) / 2$, where $t_i$ is the number of tied values in the $i^{th}$ group of ties for the first quantity and $u_j$ is the number of tied values in the $j^{th}$ group of ties for the second quantity~\cite{enwiki:1222948294}. It's important to note that tied pairs are considered neither concordant nor discordant in this calculation.
-{{< /justify >}}
+{{< image src="img/HOL.jpg" alt="HOL" width="120%" title="Figure 1: A long request can block short requests and introduce severe HOL blocking and high latency. We assume there is no prefill time, and the system takes 1 second to generate 1 token. With a First-come-first-serve (FCFS) schedule, the long request \textit{R0}, which arrives first and takes 10 seconds to generate 10 tokens, will block subsequent shorter requests \textit{R1} and \textit{R2} for 10 seconds. Hence the latencies of \textit{R0},  \textit{R1}, and \textit{R2} are $10 / 10 = 1, (10 + 2) / 2 = 6, (10+2+1)/1=13 \mbox{ s / token}$, respectively, perceived by users, with an average latency of $(1+6+13)/3 = 6.67 \mbox{ s / token}$. By contrast, prioritizing shortest requests yields an average latency of $(1.3+1.5+1)/3=1.27 \mbox{ s / token}$ -- a $5.3\times$ reduction in average latency.">}}
 
-### Learning to Rank
+## Learning to Rank
 
 {{< justify >}}
 Learning to rank is a machine learning approach applied to supervised ranking data. It is widely used in recommendation systems, search engine and other research areas. Learning to rank typically takes one of three forms: pointwise, pairwise, and listwise. Pointwise turns the ranking problem into regression, classification or ordinal regression. Pairwise method learns the relative ranking for each pair of items. Listwise learns the ranking of lists of samples in a dataset. 
