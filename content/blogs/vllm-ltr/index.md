@@ -70,9 +70,9 @@ To prevent long requests from being perpetually delayed, we've incorporated star
 
 ### Training Length Ranking Predictor
 
-For our predictor P, we utilize a small OPT model as the backbone, capable of processing natural language prompts as input and generating a score for ranking. While previous methods use classification (with bucketing) to generate accurate output length predictions, we find this approach both challenging and unnecessary. Instead, the relative ranking suffices. Based on this insight, we apply learning to rank to train the OPT model. This section explains how we train the OPT model as the predictor P to rank prompts by their expected generation length.
+For our predictor ($P$), we use a small [OPT](https://arxiv.org/abs/2205.01068) model (e.g., OPT-125M) that processes natural language prompts and generates ranking scores. While previous methods used classification with bucketing to predict output lengths, we found this approach both challenging and unnecessary - relative rankings are sufficient. Based on this insight, we train the OPT model using learning-to-rank techniques to order prompts by their expected generation length.
 
-The model training process takes less than 5mins on 10K data, which can be obtained in real world serving. It benefits the real world serving.
+The training data consists of prompt-ranking pairs collected from actual serving batches. For each batch (e.g., size of 64), we record the prompts and their corresponding rankings based on their actual generation lengths (i.e., how many tokens were ultimately generated for each prompt). Once we've collected 10K such pairs from real-world serving, training the OPT model takes less than 5 minutes, making it practical for deployment.
 
 ### Starvation Prevention
 
