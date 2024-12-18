@@ -76,45 +76,42 @@ The training data consists of prompt-ranking pairs collected from actual serving
 
 ### Starvation Prevention
 
-It is well known that while SJF/SRTF scheduling can improve overall latency, it may lead to starvation for long requests, causing users to wait excessively for responses. Different from previous fairness-promoting design [39], which focuses on the fairness between different clients, we propose a *max_waiting_time* fairness metric to evaluate the fairness at per-request level (hence reflecting per-user satisfaction). We define max_waiting_time fairness by considering both Time To First Token (TTFT) and Time Per Output Token (TPOT)[12] in LLM serving as follows: 
+While SJF/SRTF scheduling can improve overall latency, it risks causing starvation for long requests, where users wait excessively for responses. Unlike previous fairness designs that focus on [inter-client fairness](https://www.usenix.org/conference/osdi24/presentation/sheng), we propose a $max\_waiting\_time$ metric to evaluate fairness at the per-request level, directly reflecting individual user satisfaction. This metric considers both Time To First Token (TTFT) and Time Per Output Token (TPOT) in LLM serving:
 
- $max\_waiting\_time=max(TTFT,max(TPOT))$
+$max\_waiting\_time = max(TTFT, max(TPOT))$
 
-Intuitively, $max\_waiting\_time$ characterizes the maximum time interval a user experiences between receiving two tokens after sending a request to the server. A larger max_waiting_time indicates a longer waiting time for the user to obtain a response, signifying more severe starvation. 
+This metric characterizes the maximum time interval a user experiences between receiving tokens after submitting a request. A larger $max\_waiting\_time$ indicates longer waiting periods, signaling more severe starvation.
 
-To mitigate starvation, our algorithm implements the following mechanism: 1) For each scheduling step, we increment a request’s starvation count if it is not executed. 2) When a request's starvation count reaches a pre-defined threshold, we will promote
- this request's priority by allocating "quantum" of execution time. 3) The request maintains this elevated
- priority until it exhausts its allocated quantum. This simple yet effective method
- prevents starvation at the request level, improves $max\_waiting\_time$, and ensures user satisfaction,
- as demonstrated in our experiments.
+To mitigate starvation, our algorithm implements three mechanisms:
+- Increment a request's starvation count when it isn't executed in a scheduling step
+- Promote a request's priority by allocating "quantum" execution time once its starvation count reaches a threshold
+- Maintain the elevated priority until the request exhausts its quantum
+
+This approach prevents request-level starvation, improves $max\_waiting\_time$, and enhances user satisfaction, as our experiments (paper §5.5) demonstrate.
+
 
 ##  Experiments
 
 ### Main results
 
-Fig. 3 compares the latency of our proposed ranking method with four baseline methods on ShareGPT
- and LMSYS-Chat-1M datasets with increasing arrival rates [2, 14, 12]. Under a rate of 64 requests/sec
-ond, our method improves mean latency by up to 6.9x compared to FCFS and 1.5x–1.9x compared
- to PO. MLFQ and PO still face severe HOL blockings as they must run all requests for a certain time
- to obtain information for scheduling. PO must execute all arriving requests with the LLM to generate
- a length prediction. MLFQ must run all arriving requests before they enter the next priority level. The
- classification method optimizes for accuracy instead of ranking, missing optimization opportunities.
- While classification and our method still need to process all the requests first to obtain a prediction, using an OPT model takes less than 2% of the time (as shown in §5.5), thus greatly reducing HOL blocking.
+Figure 4 compares the latency of our ranking method against four baselines using ShareGPT and LMSYS-Chat-1M datasets across increasing arrival rates. At 64 requests/second, our method achieves up to 6.9x lower mean latency than FCFS and 1.5x-1.9x lower than Perception Only (PO).
+
+Both [Multi-Level Feedback Queue](https://arxiv.org/abs/2305.05920) (MLFQ, a traditional system scheduling approach) and [PO](https://dl.acm.org/doi/abs/10.5555/3666122.3668981) (which asks the LLM itself to predict its generation length) suffer from severe HOL blocking because they require initial processing of all requests: PO must run requests through the LLM, while MLFQ needs to process requests before assigning priority levels. The [classification approach](https://arxiv.org/abs/2306.06000), which sorts requests into length buckets, optimizes for high accuracy rather than ranking, missing opportunities for optimization.
  
-{{< image src="img/main.png" alt="main.png" width="100%" title="Main results of LLM-Ltr">}}
+{{< image src="img/main.png" alt="main.png" width="100%" title="Figure 4: Main results of LLM-Ltr">}}
 
 ### Overhead of the predictor
 
 The predictor adds minimal overhead - less than 2% additional processing time across all settings. We use a 350M parameter predictor for the 70B model and a 125M predictor for the 8B model. While request processing involves both prefill and decode steps, the OPT predictor only performs prefill operations. The overhead increases with longer context lengths, which explains the higher overhead observed on the ShareGPT dataset.
 
-{{< image src="img/overhead.png" alt="overhead" width="100%" title="Overhead of the predictor">}}
+{{< image src="img/overhead.png" alt="overhead" width="100%" title="Figure 5: Overhead of the predictor">}}
 
 More detailed results can be found in the \S5 of our paper.
 
 ## Get started
-{{< justify >}}
+
 Please see [our paper](https://arxiv.org/abs/2408.15792) for more details. We also invite you to try out [our codebase](https://github.com/hao-ai-lab/vllm-ltr) and [checkpoints](https://huggingface.co/LLM-ltr/)!
-{{< /justify >}}
+
 
 ## Acknowledgement
 
