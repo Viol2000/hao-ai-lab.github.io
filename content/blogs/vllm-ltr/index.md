@@ -114,8 +114,7 @@ Please see [our paper](https://arxiv.org/abs/2408.15792) for more details. We al
 
 ## Acknowledgement
 
-Not Implemented Yet.
-
+We extend our gratitude to Junda Chen, Yinmin Zhong, and Zhuohan Li for their valuable feedback!
 
 ## Citation
 
