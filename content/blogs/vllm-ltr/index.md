@@ -65,12 +65,14 @@ We propose a simple but effective algorithm, for scheduling requests using ranki
 {{< /justify >}}
 
 
-{{< image src="img/llm-ltr.png" alt="overview" width="120%" title="Overview of the method.">}}
+{{< image src="img/llm-ltr.png" alt="overview" width="80%" title="Overview of the method.">}}
 
 
 ### Training Length Ranking Predictor
 
-We train the ranking predictor.
+For our predictor P, we utilize a small OPT model as the backbone, capable of processing natural language prompts as input and generating a score for ranking. While previous methods use classification (with bucketing) to generate accurate output length predictions, we find this approach both challenging and unnecessary. Instead, the relative ranking suffices. Based on this insight, we apply learning to rank to train the OPT model. This section explains how we train the OPT model as the predictor P to rank prompts by their expected generation length.
+
+The model training process takes less than 5mins on 10K data, which can be obtained in real world serving. It benefits the real world serving.
 
 ### Starvation Prevention
 
@@ -88,6 +90,11 @@ Intuitively, max_waiting_time characterizes the maximum time interval a user exp
 Our proposed method improve the mean latency by up to 6.9x compared with FCFS and from 1.5x–1.9x compared with PO in Chatbot Serving. More detailed evaluations and comparisons can be found in our paper.
 {{< /justify >}}
 
+### Overhead of the predictor
+
+The predictor adds minimal overhead - less than 2% additional processing time across all settings. We use a 350M parameter predictor for the 70B model and a 125M predictor for the 8B model. While request processing involves both prefill and decode steps, the OPT predictor only performs prefill operations. The overhead increases with longer context lengths, which explains the higher overhead observed on the ShareGPT dataset.
+
+{{< image src="img/overhead.png" alt="overhead.png" width="100%" title="Overhead of the predictor">}}
 
 ## Get started
 {{< justify >}}
