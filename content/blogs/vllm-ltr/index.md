@@ -22,7 +22,7 @@ draft = false
 
 {{< justify >}}
 
-**TL;DR:** Traditional Large Language Model (LLM) serving systems use first-come-first-serve scheduling since the exact output lengths are unpredictable. However, we developed a *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient scheduling policy (to approximate SJF) that reduced chatbot latency by 2.8x and increased data generation throughput by 6.5x.
+**TL;DR:** Traditional Large Language Model (LLM) serving systems use first-come-first-serve scheduling since the exact output lengths are unpredictable. However, we developed a *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient scheduling policy (to approximate SJF) that reduced chatbot latency by 6.9x compared with FCFS.
 
 {{< /justify >}}
 
@@ -86,15 +86,23 @@ Intuitively, max_waiting_time characterizes the maximum time interval a user exp
 ##  Experiments
 
 ### Results
-{{< justify >}}
-Our proposed method improve the mean latency by up to 6.9x compared with FCFS and from 1.5x–1.9x compared with PO in Chatbot Serving. More detailed evaluations and comparisons can be found in our paper.
-{{< /justify >}}
+
+Fig. 3 compares the latency of our proposed ranking method with four baseline methods on ShareGPT
+ and LMSYS-Chat-1M datasets with increasing arrival rates [2, 14, 12]. Under a rate of 64 requests/sec
+ond, our method improves mean latency by up to 6.9x compared to FCFS and 1.5x–1.9x compared
+ to PO. MLFQ and PO still face severe HOL blockings as they must run all requests for a certain time
+ to obtain information for scheduling. PO must execute all arriving requests with the LLM to generate
+ a length prediction. MLFQ must run all arriving requests before they enter the next priority level. The
+ classification method optimizes for accuracy instead of ranking, missing optimization opportunities.
+ While classification and our method still need to process all the requests first to obtain a prediction, using an OPT model takes less than 2% of the time (as shown in §5.5), thus greatly reducing HOL blocking.
+ 
+{{< image src="img/main.png" alt="main.png" width="100%" title="Main results of LLM-Ltr">}}
 
 ### Overhead of the predictor
 
 The predictor adds minimal overhead - less than 2% additional processing time across all settings. We use a 350M parameter predictor for the 70B model and a 125M predictor for the 8B model. While request processing involves both prefill and decode steps, the OPT predictor only performs prefill operations. The overhead increases with longer context lengths, which explains the higher overhead observed on the ShareGPT dataset.
 
-{{< image src="img/overhead.png" alt="overhead.png" width="100%" title="Overhead of the predictor">}}
+{{< image src="img/overhead.png" alt="overhead" width="100%" title="Overhead of the predictor">}}
 
 ## Get started
 {{< justify >}}
