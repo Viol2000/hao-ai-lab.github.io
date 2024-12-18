@@ -38,13 +38,11 @@ LLMs are increasingly becoming the backbone of many Internet services and applic
 
 ### Learning to Rank
 
-{{< justify >}}
-Learning to rank is a machine learning approach applied to learn the ranking of supervised ranking data. ListMLE is a listwise ranking loss of particular interest in our paper. It minimizes the likelihood function defined $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
+Learning to rank is a machine learning approach that learns to order items based on supervised ranking data. Among various ranking methods, we focus on listwise approaches that directly optimize the order of all items in a list. One such approach is ListMLE, a listwise ranking loss function of particular interest in our paper.
 
-$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $   
-
-Here, $P(y \mid x ; g$ represents the probability of the permutation $y$ given the input $x$ and the scoring function $g$. $x_{y(i)}$ denotes the element in $x$ that corresponds to the $i$-th position in the permutation $y$. The idea is to maximize the likelihood of the correct ranking $y$ by using the scoring function $g$ to predict the ranking of the input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict a ranking close to the true ranking. 
-{{< /justify >}}
+ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
+$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
+Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. The idea is to maximize the likelihood of the correct ranking $y$ by using scoring function $g$ to predict the ranking of input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict rankings close to the true ordering.
 
 ## LLM Scheduling by Learning-To-Rank
 
