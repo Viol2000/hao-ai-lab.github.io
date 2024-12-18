@@ -44,26 +44,28 @@ Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given inpu
 
 ## LLM Scheduling by Learning-To-Rank
 
-### Ranking is All You Need (to appximate SJF)
+### Ranking is All You Need (to approximate SJF)
 
-Due to LLM's autoregressive decoding, tokens are generated one by one, with each token depending on all previous tokens. Since we cannot predict when the model will generate an End-of-Sequence token, precise generation lengths cannot be determined at the start. 
+Due to LLM's autoregressive decoding, tokens are generated one by one, with each token depending on all previous tokens. Since we cannot predict when the model will generate an *End-Of-Sequence* token, precise generation lengths cannot be determined at the start. 
 
 However, we demonstrate that exact lengths aren't necessary - accurate prediction of **generation length rankings** is sufficient.
 
-Our goal is to approximate true SJF/SRTF scheduling using these rankings to reduce HOL blocking (Figure 2a) and achieve lower latency in LLM serving. As shown in Figure 2a, our approach achieves a normalized waiting time that's 0.5x of FCFS, while still being only 0.2x away from the optimal SRTF. Figure 2b demonstrates that higher Kendall's Tau correlations indicate more accurate rank predictions compared to the oracle (SJF/SRTF), which directly translates to lower latency per token in the system.
+Our goal is to approximate true SJF/SRTF scheduling using these rankings to reduce HOL blocking (Figure 2a) and achieve lower latency in LLM serving. As shown in Figure 2a, our approach achieves a normalized waiting time that's 0.5x of FCFS, while still being only 0.2x away from the optimal SRTF. Figure 2b demonstrates that higher Kendall's Tau correlations indicate more accurate rank predictions compared to the oracle (SJF/SRTF), which directly translates to lower latency per token in the LLM serving system.
 
 {{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure 2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
 
 
 ### Method
 
-{{< justify >}}
-We propose a simple but effective algorithm, for scheduling requests using ranking information, as detailed in Algorithm. The core idea is to iteratively run the predictor model $P$ to score new requests, then sort all requests according to their predicted generation length rankings. We form a running batch based on this sorted order, subject to memory or batch size constraints. To prevent the starvation of long requests, we've incorporated additional mechanisms, which we'll explain shortly. This ranking-based scheduling algorithm operates at the iteration level, making it compatible with established LLM serving techniques such as continuous batching and PagedAttention. 
+We propose a straightforward yet effective algorithm for scheduling requests using ranking information (shown in Figure 3 and detailed in Algorithm 1 in the paper). The core idea is to:
 
-{{< /justify >}}
+- Iteratively run the predictor model ($P$) to score new requests
+- Sort all requests by their predicted generation length rankings
+- Form a running batch based on this sorted order, while respecting memory and batch size constraints 
 
+To prevent long requests from being perpetually delayed, we've incorporated starvation prevention mechanisms, which we'll discuss after shortly. This ranking-based scheduler operates at the iteration level, making it compatible with established LLM serving techniques like [continuous batching](https://www.usenix.org/conference/osdi22/presentation/yu) and [PagedAttention](https://dl.acm.org/doi/10.1145/3600006.3613165).
 
-{{< image src="img/llm-ltr.png" alt="overview" width="80%" title="Overview of the method.">}}
+{{< image src="img/llm-ltr.png" alt="overview" width="80%" title="Figure 3: Overview of the method.">}}
 
 
 ### Training Length Ranking Predictor
