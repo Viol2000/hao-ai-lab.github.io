@@ -64,13 +64,22 @@ We propose a simple but effective algorithm, for scheduling requests using ranki
 
 {{< /justify >}}
 
+
+{{< image src="img/llm-ltr.png" alt="llmltr" width="120%" title="Overview of the method.">}}
+
+
 ### Training Length Ranking Predictor
 
 We train the ranking predictor.
 
 ### Starvation Prevention
 
-It is well known that simulating SJF will starve long requests. To mitigate this, we introduce starvation prevention.
+It is well known that while SJF/SRTF scheduling can improve overall latency, it may lead to starvation for long requests, causing users to wait excessively for responses. Different from previous fairness-promoting design [39], which focuses on the fairness between different clients, we propose a *max_waiting_time* fairness metric to evaluate the fairness at per-request level (hence reflecting per-user satisfaction). We define max_waiting_time fairness by considering both Time To First Token (TTFT) and Time Per Output Token (TPOT)[12] in LLM serving as follows: 
+
+ $max_waiting_time=max(TTFT,max(TPOT))$
+
+Intuitively, max_waiting_time characterizes the maximum time interval a user experiences between receiving two tokens after sending a request to the server. A larger max_waiting_time indicates a longer waiting time for the user to obtain a response, signifying more severe starvation.
+
 
 ##  Experiments
 
