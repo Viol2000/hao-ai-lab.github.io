@@ -13,9 +13,9 @@ draft = false
       name = "github"
       url = "https://github.com/hao-ai-lab/vllm-ltr"
 [cover]
-      image = "img/HOL.jpg"
-      alt = "HOL"
-      caption = "An illustration of Head-of-line."
+      image = "img/llm-ltr.png"
+      alt = "llm-ltr"
+      caption = "An illustration of LLM-Ltr."
 +++
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
@@ -65,7 +65,7 @@ We propose a simple but effective algorithm, for scheduling requests using ranki
 {{< /justify >}}
 
 
-{{< image src="img/llm-ltr.png" alt="llmltr" width="120%" title="Overview of the method.">}}
+{{< image src="img/llm-ltr.png" alt="overview" width="120%" title="Overview of the method.">}}
 
 
 ### Training Length Ranking Predictor
