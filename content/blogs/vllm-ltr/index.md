@@ -44,13 +44,15 @@ Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given inpu
 
 ## LLM Scheduling by Learning-To-Rank
 
-### Ranking is All You Need (to appx. SJF)
+### Ranking is All You Need (to appximate SJF)
 
-We show that the precise generation length is not needed. An accurate generation length ranking prediction is enough. 
+Due to LLM's autoregressive decoding, tokens are generated one by one, with each token depending on all previous tokens. Since we cannot predict when the model will generate an End-of-Sequence token, precise generation lengths cannot be determined at the start. 
 
-Ourgoal is to approximate true SJF/SRTF scheduling using these rankings to alleviate HOL blocking (Fig. 2 a) and obtain a relatively low latency in LLM serving. Ahigher Kendall’s Tau reflects a more accurate rank prediction against the oracle (i.e., SJF/SRTF), which empirically translates into higher end-to-end performance, as evidenced in Fig. 2 (b).
- 
-{{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
+However, we demonstrate that exact lengths aren't necessary - accurate prediction of **generation length rankings** is sufficient.
+
+Our goal is to approximate true SJF/SRTF scheduling using these rankings to reduce HOL blocking (Figure 2a) and achieve lower latency in LLM serving. As shown in Figure 2a, our approach achieves a normalized waiting time that's 0.5x of FCFS, while still being only 0.2x away from the optimal SRTF. Figure 2b demonstrates that higher Kendall's Tau correlations indicate more accurate rank predictions compared to the oracle (SJF/SRTF), which directly translates to lower latency per token in the system.
+
+{{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure 2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
 
 
 ### Method
