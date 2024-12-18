@@ -39,15 +39,11 @@ LLMs are increasingly becoming the backbone of many today’s Internet services 
 ### Learning to Rank
 
 {{< justify >}}
-Learning to rank is a machine learning approach applied to supervised ranking data. It is widely used in recommendation systems, search engine and other research areas. Learning to rank typically takes one of three forms: pointwise, pairwise, and listwise. Pointwise turns the ranking problem into regression, classification or ordinal regression. Pairwise method learns the relative ranking for each pair of items. Listwise learns the ranking of lists of samples in a dataset. 
-{{< /justify >}}
-
-{{< justify >}}
-ListMLE is a listwise ranking loss of particular interest in our paper. It minimizes the likelihood function defined $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
+Learning to rank is a machine learning approach applied to learn the ranking of supervised ranking data. ListMLE is a listwise ranking loss of particular interest in our paper. It minimizes the likelihood function defined $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
 
 $P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $   
 
-Here, \( P(y \mid x ; g) \) represents the probability of the permutation \( y \) given the input \( x \) and the scoring function \( g \). \( x_{y(i)} \) denotes the element in \( x \) that corresponds to the \( i \)-th position in the permutation \( y \). The idea is to maximize the likelihood of the correct ranking \( y \) by using the scoring function \( g \) to predict the ranking of the input \( x \). The loss function \( \mathcal{\phi}(g(x),y) \) minimizes the negative log-likelihood of this probability, encouraging the model to predict a ranking close to the true ranking. ListMLE's focus on list ranking aligns with Kendall's Tau, which measures the correlation between two rankings. This ensures that minimizing the loss can help improve Kendall's Tau.
+Here, $P(y \mid x ; g$ represents the probability of the permutation $y$ given the input $x$ and the scoring function $g$. $x_{y(i)}$ denotes the element in $x$ that corresponds to the $i$-th position in the permutation $y$. The idea is to maximize the likelihood of the correct ranking $y$ by using the scoring function $g$ to predict the ranking of the input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict a ranking close to the true ranking. 
 {{< /justify >}}
 
 ## LLM Scheduling by Learning-To-Rank
@@ -56,6 +52,8 @@ Here, \( P(y \mid x ; g) \) represents the probability of the permutation \( y \
 
 We show that the precise generation length is not needed. An accurate generation length ranking prediction is enough. 
 
+Ourgoal is to approximate true SJF/SRTF scheduling using these rankings to alleviate HOL blocking (Fig. 2 a) and obtain a relatively low latency in LLM serving. Ahigher Kendall’s Tau reflects a more accurate rank prediction against the oracle (i.e., SJF/SRTF), which empirically translates into higher end-to-end performance, as evidenced in Fig. 2 (b).
+ 
 {{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
 
 
