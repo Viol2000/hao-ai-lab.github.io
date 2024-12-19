@@ -12,10 +12,6 @@ draft = false
     [[socialIcons.icon]]
       name = "github"
       url = "https://github.com/hao-ai-lab/vllm-ltr"
-[cover]
-      image = "img/llm-ltr.png"
-      alt = "llm-ltr"
-      caption = "An illustration of LLM-Ltr."
 +++
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
