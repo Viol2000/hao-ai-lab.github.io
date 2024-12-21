@@ -16,7 +16,7 @@ draft = false
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
 
-**TL;DR:** Traditional Large Language Model (LLM) serving systems rely on first-come-first-serve (FCFS) scheduling. When longer requests block shorter ones in the queue, this creates a cascade of delays that severely impacts overall system latency. With output lengths being unpredictable in LLM generation, optimizing scheduling has remained challenging. We developed a novel *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient Shortest Job First-like scheduling policy. This scheduling approach reduced chatbot latency by 6.9x compared to traditional FCFS scheduling, while maintaining fair service for all request types.
+**TL;DR:** Traditional Large Language Model (LLM) serving systems rely on first-come-first-serve (FCFS) scheduling. When longer requests block shorter ones in the queue, this creates a cascade of delays that severely impacts overall system latency. With output lengths being unpredictable in LLM generation, optimizing scheduling has remained challenging. We developed a novel *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient Shortest Job First-like scheduling policy. This scheduling approach reduced chatbot latency by 6.9x compared to traditional FCFS scheduling.
 
 ## Background
 
