@@ -43,13 +43,13 @@ Our goal is to approximate true SJF/SRTF scheduling using these rankings to redu
 
 ### Learning to Rank
 
-Learning to rank is a machine learning approach that trains models to order items based on labeled ranking data. This data typically consists of items paired with their relative rankings or scores, which serve as ground truth for the learning process. Among various ranking methods, we focus on listwise approaches that directly optimize the overall order of all items in a list. A notable example is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function central to our study.
+Learning to Rank (LTR) is a supervised machine learning paradigm that trains models to generate rankings of items based on their characteristics. Among the various ranking methodologies, listwise approaches stand out by directly optimizing the ordering of entire sequences, offering advantages over pointwise and pairwise methods that may miss important contextual relationships between items. A notable example is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function central to our study.
 
 ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
 
 $P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
 
-Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. Intuitively, this formulation captures how well our scoring function $g$ predicts the true ordering $y$ of inputs $x$. The loss function $\mathcal{\phi}(g(x),y)$ represents the negative log-likelihood of observing the correct ranking $y$, where a lower value indicates better prediction accuracy. By minimizing this loss, we train the model to assign higher probabilities to rankings that match the ground truth ordering, effectively learning to predict the relative positioning of elements in the sequence.
+Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. Intuitively, this formulation captures how well our scoring function $g$ predicts the true ordering $y$ of inputs $x$. The loss function $\mathcal{\phi}(g(x),y)$ represents the negative log-likelihood of observing the correct ranking $y$, where a lower value indicates better prediction accuracy. By minimizing this loss, we train the model to effectively predict the relative positioning of elements in the list.
 
 
 
