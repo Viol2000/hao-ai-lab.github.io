@@ -41,9 +41,11 @@ Our experiments validate this approach through two key metrics. As shown in Figu
 
 {{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure 2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
 
+To achieve accurate generation length rankings, we leverage Learning to Rank (LTR), a machine learning approach that allows us to predict the relative ordering of completion times for a batch of prompts and use these predictions for efficient scheduling. We introduce it in the following section.
+
 ### Learning to Rank
 
-Learning to Rank (LTR) is a supervised machine learning paradigm that trains models to generate rankings of items based on their characteristics. Among the various ranking methodologies, listwise approaches stand out by directly optimizing the ordering of entire sequences, offering advantages over pointwise and pairwise methods that may miss important contextual relationships between items. A notable example is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function central to our study.
+Learning to Rank is a supervised machine learning paradigm that trains models to generate rankings of items based on their characteristics. Among the various ranking methodologies, listwise approaches stand out by directly optimizing the ordering of entire sequences, offering advantages over pointwise and pairwise methods that may miss important contextual relationships between items. A notable example is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function central to our study.
 
 ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
 
