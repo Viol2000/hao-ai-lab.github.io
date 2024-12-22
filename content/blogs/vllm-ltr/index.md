@@ -55,13 +55,13 @@ Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given inpu
 
 ### Method
 
-We propose a straightforward yet effective algorithm for scheduling requests using ranking information (shown in Figure 3 and detailed in Algorithm 1 in the paper). The core idea is to:
+Our scheduling algorithm leverages the learning to rank to efficiently process requests, as illustrated in Figure 3 and detailed in Algorithm 1 in the paper. The scheduler operates through three key steps:
 
-- Iteratively run the predictor model ($P$) to score new requests
-- Sort all requests by their predicted generation length rankings
-- Form a running batch based on this sorted order, while respecting memory and batch size constraints 
+- A ranking model ($P$) predicts generation lengths for newly arrived requests in each iteration
+- All pending requests are sorted based on these predictions
+- A running batch is formed following this sorted order, while respecting memory and batch size constraints
 
-To prevent long requests from being perpetually delayed, we've incorporated starvation prevention mechanisms, which we'll discuss after shortly. This ranking-based scheduler operates at the iteration level, making it compatible with established LLM serving techniques like [continuous batching](https://www.usenix.org/conference/osdi22/presentation/yu) and [PagedAttention](https://dl.acm.org/doi/10.1145/3600006.3613165).
+This ranking-based scheduler operates at the iteration level, making it compatible with established LLM serving techniques like [continuous batching](https://www.usenix.org/conference/osdi22/presentation/yu) and [PagedAttention](https://dl.acm.org/doi/10.1145/3600006.3613165). To prevent long requests from being perpetually delayed, we've incorporated starvation prevention mechanisms, which we discuss in detail below.
 
 {{< image src="img/llm-ltr.png" alt="overview" width="80%" title="Figure 3: Overview of the method.">}}
 
