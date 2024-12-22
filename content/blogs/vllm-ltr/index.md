@@ -18,9 +18,7 @@ draft = false
 
 **TL;DR:** Traditional Large Language Model (LLM) serving systems rely on first-come-first-serve (FCFS) scheduling. When longer requests block shorter ones in the queue, this creates a cascade of delays that severely impacts overall system latency. With output lengths being unpredictable in LLM generation, optimizing scheduling has remained challenging. We developed a novel *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient Shortest Job First-like scheduling policy. This scheduling approach reduced chatbot latency by 6.9x compared to traditional FCFS scheduling.
 
-## Background
-
-### Head-of-line Blocking in LLM Serving 
+## Head-of-line Blocking in LLM Serving 
 
 LLMs have become critical infrastructure for many Internet services, powering applications used by millions daily. As demand grows, serving LLMs efficiently on GPU clusters becomes essential to handle the sheer volume of user requests. For applications like chatbots, this requires minimizing user-perceived latency while maintaining high throughput to support as many concurrent users as possible.
 
@@ -30,15 +28,6 @@ It is well-established that algorithms like shortest-job-first (SJF) and the pre
 
 {{< image src="img/HOL.jpg" alt="HOL" width="120%" title="Figure 1: A long request can block short requests and introduce severe HOL blocking and high latency. We assume there is no prefill time, and the system takes 1 second to generate 1 token. With a First-come-first-serve (FCFS) schedule, the long request *R0*, which arrives first and takes 10 seconds to generate 10 tokens, will block subsequent shorter requests *R1* and *R2* for 10 seconds. Hence the latencies of *R0*,  *R1*, and *R2* are $10 / 10 = 1, (10 + 2) / 2 = 6, (10+2+1)/1=13 \mbox{ s / token}$, respectively, perceived by users, with an average latency of $(1+6+13)/3 = 6.67 \mbox{ s / token}$. By contrast, prioritizing shortest requests yields an average latency of $(1.3+1.5+1)/3=1.27 \mbox{ s / token}$ -- a $5.3\times$ reduction in average latency.">}}
 
-### Learning to Rank
-
-Learning to rank is a machine learning approach that learns to order items based on supervised ranking data. Among various ranking methods, we focus on listwise approaches that directly optimize the order of all items in a list. One such approach is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function of particular interest in our paper.
-
-ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
-
-$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
-
-Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. The idea is to maximize the likelihood of the correct ranking $y$ by using scoring function $g$ to predict the ranking of input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict rankings close to the true ordering.
 
 ## LLM Scheduling by Learning-To-Rank
 
@@ -51,6 +40,21 @@ However, we demonstrate that exact lengths aren't necessary - accurate predictio
 Our goal is to approximate true SJF/SRTF scheduling using these rankings to reduce HOL blocking (Figure 2a) and achieve lower latency in LLM serving. As shown in Figure 2a, our approach achieves a normalized waiting time that's 0.5x of FCFS, while still being only 0.2x away from the optimal SRTF. Figure 2b demonstrates that higher Kendall's Tau correlations indicate more accurate rank predictions compared to the oracle (SJF/SRTF), which directly translates to lower latency per token in the LLM serving system.
 
 {{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure 2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
+
+### Learning to Rank
+
+Learning to rank is a machine learning approach that trains models to order items based on labeled ranking data. This data typically consists of items paired with their relative rankings or scores, which serve as ground truth for the learning process. Among various ranking methods, we focus on listwise approaches that directly optimize the overall order of all items in a list. A notable example is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function central to our study.
+
+ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
+
+$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
+
+Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. Intuitively, this formulation captures how well our scoring function $g$ predicts the true ordering $y$ of inputs $x$. The loss function $\mathcal{\phi}(g(x),y)$ represents the negative log-likelihood of observing the correct ranking $y$, where a lower value indicates better prediction accuracy. By minimizing this loss, we train the model to assign higher probabilities to rankings that match the ground truth ordering, effectively learning to predict the relative positioning of elements in the sequence.
+
+
+
+The idea is to maximize the likelihood of the correct ranking $y$ by using scoring function $g$ to predict the ranking of input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict rankings close to the true ordering.
+
 
 
 ### Method
