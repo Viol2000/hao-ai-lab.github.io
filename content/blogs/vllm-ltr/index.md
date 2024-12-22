@@ -68,9 +68,9 @@ This ranking-based scheduler operates at the iteration level, making it compatib
 
 ### Training Length Ranking Predictor
 
-For our predictor ($P$), we use a small [OPT](https://arxiv.org/abs/2205.01068) model (e.g., OPT-125M) that processes natural language prompts and generates ranking scores. While previous methods used classification with bucketing to predict output lengths, we found this approach both challenging and unnecessary - relative rankings are sufficient. Based on this insight, we train the OPT model using learning-to-rank techniques to order prompts by their expected generation length.
+For our predictor ($P$), we leverage [OPT](https://arxiv.org/abs/2205.01068), a language model capable of processing natural language prompts. Specifically, we use a small variant (OPT-125M) and append an MLP to map its hidden states to ranking scores. While previous methods used [classification with bucketing](https://arxiv.org/abs/2306.06000) to predict output lengths, we found this approach both challenging and unnecessary - relative rankings are sufficient. 
 
-The training data consists of prompt-ranking pairs collected from actual serving batches. For each batch (e.g., size of 64), we record the prompts and their corresponding rankings based on their actual generation lengths (i.e., how many tokens were ultimately generated for each prompt). Once we've collected 10K such pairs from real-world serving, training the OPT model takes less than 5 minutes, making it practical for deployment.
+Our training process uses prompt-ranking pairs collected from actual serving batches. For each batch of 64 prompts, we record both the prompts and their corresponding rankings based on observed generation lengths. After collecting 10K such pairs from real-world serving, we can train the model in less than 5 minutes, making it practical for deployment. This learning-to-rank approach enables the model to directly order prompts by their expected generation length according to the real-world serving data distribution.
 
 ### Starvation Prevention
 
