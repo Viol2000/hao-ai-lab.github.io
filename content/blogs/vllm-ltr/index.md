@@ -29,15 +29,15 @@ It is well-established that algorithms like shortest-job-first (SJF) and the pre
 {{< image src="img/HOL.jpg" alt="HOL" width="120%" title="Figure 1: A long request can block short requests and introduce severe HOL blocking and high latency. We assume there is no prefill time, and the system takes 1 second to generate 1 token. With a First-come-first-serve (FCFS) schedule, the long request *R0*, which arrives first and takes 10 seconds to generate 10 tokens, will block subsequent shorter requests *R1* and *R2* for 10 seconds. Hence the latencies of *R0*,  *R1*, and *R2* are $10 / 10 = 1, (10 + 2) / 2 = 6, (10+2+1)/1=13 \mbox{ s / token}$, respectively, perceived by users, with an average latency of $(1+6+13)/3 = 6.67 \mbox{ s / token}$. By contrast, prioritizing shortest requests yields an average latency of $(1.3+1.5+1)/3=1.27 \mbox{ s / token}$ -- a $5.3\times$ reduction in average latency.">}}
 
 
-## LLM Scheduling by Learning-To-Rank
+## LLM Scheduling by Learning To Rank
 
-### Ranking is All You Need (to approximate SJF)
+### Accurate Rankings, Not Exact Lengths, Enable SJF-like Scheduling
 
-Due to LLM's autoregressive decoding, tokens are generated one by one, with each token depending on all previous tokens. Since we cannot predict when the model will generate an *End-Of-Sequence* token, precise generation lengths cannot be determined at the start. 
+An LLM generates text through autoregressive decoding, producing one token at a time based on all previously generated tokens. The model continues this sequential generation until it produces a special End-of-Sequence (EOS) token, which signals the completion of the response. Due to this autoregressive nature, we cannot anticipate the EOS token's timing, making generation lengths unpredictable at the start of processing.
 
-However, we demonstrate that exact lengths aren't necessary - accurate prediction of **generation length rankings** is sufficient.
+While SJF scheduling traditionally requires exact job length information, we demonstrate that precise lengths aren't necessary - accurate prediction of **generation length rankings** is sufficient for effective scheduling. This insight enables us to approximate SJF/SRTF scheduling by using these rankings to reduce HOL blocking and achieve lower latency in LLM serving.
 
-Our goal is to approximate true SJF/SRTF scheduling using these rankings to reduce HOL blocking (Figure 2a) and achieve lower latency in LLM serving. As shown in Figure 2a, our approach achieves a normalized waiting time that's 0.5x of FCFS, while still being only 0.2x away from the optimal SRTF. Figure 2b demonstrates that higher Kendall's Tau correlations indicate more accurate rank predictions compared to the oracle (SJF/SRTF), which directly translates to lower latency per token in the LLM serving system.
+Our experiments validate this approach. As shown in Figure 2a, our ranking-based scheduler achieves a normalized waiting time that's 0.5x of FCFS, while remaining only 0.2x away from the optimal SRTF scheduler that has access to perfect length information. Furthermore, Figure 2b reveals the direct relationship between ranking accuracy and system performance: higher Kendall's Tau correlations with the oracle rankings (SJF/SRTF) translate to lower per-token latency in the LLM serving system.
 
 {{< image src="img/ranking.png" alt="ranking" width="120%" title="Figure 2: (a): HOL blocking was evaluated by comparing FCFS and SRTF scheduling policies across 1K requests. (b): Analysis revealed that higher Kendall’s Tau correlation coefficients were associated with reduced latency. This finding was validated using the ShareGPT dataset with the Llama-3-8B model.">}}
 
