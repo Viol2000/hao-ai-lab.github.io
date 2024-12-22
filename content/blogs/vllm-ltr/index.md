@@ -51,12 +51,6 @@ $P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\
 
 Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. Intuitively, this formulation captures how well our scoring function $g$ predicts the true ordering $y$ of inputs $x$. The loss function $\mathcal{\phi}(g(x),y)$ represents the negative log-likelihood of observing the correct ranking $y$, where a lower value indicates better prediction accuracy. By minimizing this loss, we train the model to effectively predict the relative positioning of elements in the list.
 
-
-
-The idea is to maximize the likelihood of the correct ranking $y$ by using scoring function $g$ to predict the ranking of input $x$. The loss function $\mathcal{\phi}(g(x),y)$ minimizes the negative log-likelihood of this probability, encouraging the model to predict rankings close to the true ordering.
-
-
-
 ### Method
 
 We propose a straightforward yet effective algorithm for scheduling requests using ranking information (shown in Figure 3 and detailed in Algorithm 1 in the paper). The core idea is to:
