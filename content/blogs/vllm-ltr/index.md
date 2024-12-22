@@ -92,11 +92,21 @@ This approach prevents request-level starvation, improves max_waiting_time, and 
 
 ### Main results
 
-Figure 4 compares the latency of our ranking method against four baselines using two real-world datasets (ShareGPT and LMSYS-Chat-1M) across increasing arrival rates. We evaluated these methods on two latest models: LLaMA3 8B and 70B. At 64 requests/second, our method achieves up to 6.9x lower mean latency than FCFS and 1.5x-1.9x lower than Prompting Oracle (PO).
+Figure 4 compares the latency of our ranking method against four baselines using two real-world datasets (ShareGPT and LMSYS-Chat-1M) across increasing arrival rates. We evaluated these methods on two latest models: LLaMA3 8B and 70B. At 64 requests/second, our method achieves up to 6.9x lower mean latency than FCFS and 1.5x-1.9x lower than Perception Only (PO).
 
 Both [Multi-Level Feedback Queue](https://arxiv.org/abs/2305.05920) (MLFQ, a traditional system scheduling approach) and [PO](https://dl.acm.org/doi/abs/10.5555/3666122.3668981) (which asks the LLM itself to predict its generation length) suffer from severe HOL blocking because they require initial processing of all requests: PO must run requests through the LLM, while MLFQ needs to process requests before assigning priority levels. The [classification approach](https://arxiv.org/abs/2306.06000), which sorts requests into length buckets, optimizes for high accuracy rather than ranking, missing opportunities for optimization.
  
 {{< image src="img/main.png" alt="main.png" width="100%" title="Figure 4: Main results of LLM-Ltr">}}
+
+### Comparing Ranking Predictors
+
+We show that the accuracy of the targeted classification method is suboptimal for LLM scheduling. Table 1 compares the prediction ability of the classification method with different bucket sizes. We evaluate the classification metric (i.e., accuracy) for the classification method and the ranking metric (i.e., Kendall's Tau) for all methods on the same randomly sampled test set. A larger bucket size shows better accuracy but does not necessarily indicate a higher Kendall's Tau.
+
+We also evaluate the end-to-end performance of these methods. The 'Lat.' column shows the mean latency to process 2k bursts of requests as in §5.2 in the paper. The 'Time' column shows the time to generate 1k synthetic data as in §5.3 in the paper. A method with a higher Kendall's Tau correlates with lower latency, as proposed in §3 in the paper. The time to generate 1k synthetic data is less related to Kendall's Tau, as a high Tau with a large bucket size does not necessarily mean the predictor can correctly select the shortest requests.
+
+PO achieves higher Kendall's Tau on the LMSYS-Chat-1M dataset. However, it needs to use the LLM itself to process all requests and generate a few tokens first for prediction, which introduces a very large HOL overhead compared to light predictor-based methods, despite its good performance in terms of Kendall's Tau. In all other settings, our proposed ranking method outperforms all other methods in terms of ranking metrics and end-to-end performance.   
+
+{{< image src="img/compare-all-ltr.png" alt="compare" width="100%" title="Table 1: Ranking prediction ability with different classification (Class. in table) settings (i.e., different bucket sizes) for Llama-3-70B. Lat. column shows the mean latency processing a burst of 2k requests for chatbot serving. Time column shows the time to generate 1k requests for synthetic data generation. Optimal Prediction is using the generation length of one random seed to predict the length of another seed. Note that the p-values of Kendall's Tau are below a given significance level (i.e., 1e-3) in all settings.">}}
 
 ### Overhead of the predictor
 
