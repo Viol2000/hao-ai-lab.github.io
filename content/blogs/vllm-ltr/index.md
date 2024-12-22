@@ -31,11 +31,11 @@ It is well-established that algorithms like shortest-job-first (SJF) and the pre
 
 ## LLM Scheduling by Learning To Rank
 
-### Accurate Rankings, Not Exact Lengths, Enable SJF-like Scheduling
+### Accurate Rankings, Not Exact Lengths, Enable SJF/SRTF-like Scheduling
 
-An LLM generates text through autoregressive decoding, producing one token at a time based on all previously generated tokens. The model continues this sequential generation until it produces a special End-of-Sequence (EOS) token, which signals the completion of the response. Due to this autoregressive nature, we cannot anticipate the EOS token's timing, making generation lengths unpredictable at the start of processing.
+An LLM generates text through autoregressive decoding, producing one token at a time based on all previously generated tokens. The model continues this sequential generation until it produces a special End-of-Sequence (EOS) token, which signals the completion of the response. Due to this autoregressive nature, we cannot anticipate the EOS token's timing, making exact generation lengths unpredictable at the start of processing.
 
-While SJF scheduling traditionally requires exact job length information, we demonstrate that precise lengths aren't necessary - accurate prediction of **generation length rankings** is sufficient for effective scheduling. This insight enables us to approximate SJF/SRTF scheduling by using these rankings to reduce HOL blocking and achieve lower latency in LLM serving.
+While SJF/SRTF scheduling traditionally are considered to require exact job length information, we demonstrate that precise lengths aren't necessary - accurate prediction of **generation length rankings** is sufficient for effective SJF/SRTF-like LLM scheduling. This insight enables us to approximate SJF/SRTF scheduling by using these rankings to reduce HOL blocking and achieve lower latency in LLM serving.
 
 Our experiments validate this approach through two key metrics. As shown in Figure 2a, our ranking-based scheduler achieves a normalized waiting time that's 0.5x of FCFS, while remaining only 0.2x away from the optimal SRTF scheduler that has access to perfect length information. To quantify ranking accuracy, we use [Kendall's tau correlation coefficient](https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient), which measures how well our predicted rankings align with the true generation lengths. Figure 2b demonstrates that higher Kendall's tau correlations indicate more accurate predictions compared to the oracle rankings (SJF/SRTF), directly translating to lower per-token latency in the LLM serving system.
 
