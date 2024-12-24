@@ -16,13 +16,13 @@ draft = false
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
 
-**TL;DR:** Traditional Large Language Model (LLM) serving systems rely on first-come-first-serve (FCFS) scheduling. When longer requests block shorter ones in the queue, this creates a cascade of delays that severely impacts overall system latency. With output lengths being unpredictable in LLM generation, optimizing scheduling has remained challenging. We developed a novel *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient Shortest Job First-like scheduling policy. This scheduling approach reduced chatbot latency by 6.9x compared to traditional FCFS scheduling.
+**TL;DR:** Traditional Large Language Model (LLM) serving systems rely on first-come-first-serve (FCFS) scheduling. When longer requests block shorter ones in the queue, this creates a cascade of delays that severely impacts overall system latency. With exact output lengths being unpredictable in LLM generation, optimizing scheduling has remained challenging. We developed a novel *learning to rank* approach that predicts the relative ranking of output lengths, enabling a more efficient Shortest Job First-like scheduling policy. This scheduling approach reduced chatbot latency by 6.9x compared to traditional FCFS scheduling.
 
-## Head-of-line Blocking in LLM Serving 
+## Head-of-Line Blocking in LLM Serving 
 
 LLMs have become critical infrastructure for many Internet services, powering applications used by millions daily. As demand grows, serving LLMs efficiently on GPU clusters becomes essential to handle the sheer volume of user requests. For applications like chatbots, this requires minimizing user-perceived latency while maintaining high throughput to support as many concurrent users as possible.
 
-Traditional first-come-first-serve (FCFS) scheduling, a common strategy in LLM serving, falls short under **high workloads** due to Head-of-Line (HOL) blocking. In FCFS, long-running requests monopolize the system, forcing shorter, potentially quicker requests to wait unnecessarily. This not only increases user-perceived latency but also hinders overall system efficiency. As illustrated in Figure 1, a single long request can significantly delay others, compounding performance bottlenecks.
+Traditional first-come-first-serve (FCFS) scheduling, a common strategy in LLM serving, falls short under **high workloads** due to Head-of-Line (HOL) blocking. In FCFS, sometimes long-running requests monopolize the system, forcing shorter, potentially quicker requests to wait unnecessarily. This not only increases user-perceived latency but also hinders overall system efficiency. As illustrated in Figure 1, a single long request can significantly delay others, compounding performance bottlenecks.
 
 It is well-established that algorithms like shortest-job-first (SJF) and the preemptive version shortest-remaining-time-first (SRTF) minimize the average latency, as they prioritize shorter tasks. However, SJF/SRTF are seldom implemented in LLM services because they require requests to be ordered by their remaining generation lengths, which is traditionally assumed to be difficult or impossible to know ahead of time in existing systems.
 
