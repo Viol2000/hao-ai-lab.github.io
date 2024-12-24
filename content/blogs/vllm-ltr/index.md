@@ -79,7 +79,7 @@ While SJF/SRTF scheduling can improve overall latency, it risks causing starvati
 
 $max\_waiting\_time = max(TTFT, max(TPOT))$
 
-This metric characterizes the maximum time interval a user experiences between receiving tokens after submitting a request. A larger $max\_waiting\_time$ indicates longer waiting periods, signaling more severe starvation.
+This metric characterizes the maximum wait time between receiving new tokens after submitting a request. A larger $max\_waiting\_time$ indicates longer waiting periods, signaling more severe starvation.
 
 To mitigate starvation, our algorithm implements three mechanisms:
 - Increment a request's starvation count when it isn't executed in a scheduling step
