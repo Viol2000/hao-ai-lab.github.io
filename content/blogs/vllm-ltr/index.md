@@ -64,7 +64,7 @@ Our scheduling algorithm leverages the learning to rank to efficiently process r
 
 This ranking-based scheduler operates at the iteration level, making it compatible with established LLM serving techniques like [continuous batching](https://www.usenix.org/conference/osdi22/presentation/yu) and [PagedAttention](https://dl.acm.org/doi/10.1145/3600006.3613165). To prevent long requests from being perpetually delayed, we've incorporated starvation prevention mechanisms, which we discuss in detail below.
 
-{{< image src="img/llm-ltr.png" alt="overview" width="80%" title="Figure 3: Overview of the method.">}}
+{{< image src="img/llm-ltr-main.png" alt="overview" width="80%" title="Figure 3: Overview of the method.">}}
 
 
 ### Training Length Ranking Predictor
