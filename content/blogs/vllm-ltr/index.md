@@ -47,6 +47,7 @@ To achieve accurate generation length rankings, we leverage Learning to Rank (LT
 
 Learning to Rank is a supervised machine learning paradigm that trains models to generate rankings of items based on their characteristics. Among the various ranking methodologies, listwise approaches stand out by directly optimizing the ordering of entire sequences, offering advantages over pointwise and pairwise methods that may miss important contextual relationships between items. A notable example is [ListMLE](https://dl.acm.org/doi/10.1145/1390156.1390306), a listwise ranking loss function central to our study.
 
+Let $y$ denote the correct (ground truth) ranking and $x$ denote the set of queries to be ranked. The scoring function $g$ maps from the input space $x$ to predicted rankings $y$.
 ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
 
 $P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
