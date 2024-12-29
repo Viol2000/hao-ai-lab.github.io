@@ -51,7 +51,7 @@ Let $y$ denote the correct (ground truth) ranking and $x$ denote the set of quer
 ListMLE minimizes the likelihood function defined as $\mathcal{\phi}(g(x),y)=-\log P\left(y \mid x ; g\right)$, where
 
 <div style="text-align: center">
-$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $
+$$P(y \mid x ; g)=\prod_{i=1}^n \frac{\exp \left(g\left(x_{y(i)}\right)\right)}{\sum_{k=i}^n \exp \left(g\left(x_{y(k)}\right)\right)} $$
 </div>
 
 Here, $P(y \mid x ; g)$ represents the probability of permutation $y$ given input $x$ and scoring function $g$. $x_{y(i)}$ denotes the element in $x$ corresponding to the $i$-th position in permutation $y$. Intuitively, this formulation captures how well our scoring function $g$ predicts the true ordering $y$ of inputs $x$. The loss function $\mathcal{\phi}(g(x),y)$ represents the negative log-likelihood of observing the correct ranking $y$, where a lower value indicates better prediction accuracy. By minimizing this loss, we train the model to effectively predict the relative positioning of elements in the list.
