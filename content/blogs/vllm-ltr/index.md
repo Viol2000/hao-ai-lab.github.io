@@ -79,7 +79,9 @@ Our training process uses prompt-ranking pairs collected from actual serving bat
 
 While SJF/SRTF scheduling can improve overall latency, it risks causing starvation for long requests, where users wait excessively for responses. Unlike previous fairness designs that focus on [inter-client fairness](https://www.usenix.org/conference/osdi24/presentation/sheng), we propose a $max\_waiting\_time$ metric to evaluate fairness at the per-request level, directly reflecting individual user satisfaction. This metric considers both Time To First Token (TTFT) and Time Per Output Token (TPOT) in LLM serving:
 
-$max\_waiting\_time = max(TTFT, max(TPOT))$
+$$
+max\_waiting\_time = max(TTFT, max(TPOT))
+$$
 
 This metric characterizes the maximum wait time between receiving new tokens after submitting a request. A larger $max\_waiting\_time$ indicates longer waiting periods, signaling more severe starvation.
 
