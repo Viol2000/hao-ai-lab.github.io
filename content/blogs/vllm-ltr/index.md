@@ -1,6 +1,6 @@
 +++
 title = "Efficient LLM Scheduling by Learning to Rank"
-date = 2024-10-10T12:00:00-08:00
+date = 2025-1-12T12:00:00-08:00
 authors = ["Yichao Fu", "Siqi Zhu", "Runlong Su", "Aurick Qiao", "Ion Stoica", "Hao Zhang"]
 author = "Yichao Fu, Siqi Zhu, Runlong Su, Aurick Qiao, Ion Stoica, Hao Zhang"
 ShowReadingTime = true
