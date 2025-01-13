@@ -1,6 +1,6 @@
 +++
 title = "Efficient LLM Scheduling by Learning to Rank"
-date = 2025-01-12T12:00:00-08:00
+date = 2025-01-12T12:00:00-10:00
 authors = ["Yichao Fu", "Siqi Zhu", "Runlong Su", "Aurick Qiao", "Ion Stoica", "Hao Zhang"]
 author = "Yichao Fu, Siqi Zhu, Runlong Su, Aurick Qiao, Ion Stoica, Hao Zhang"
 ShowReadingTime = true
@@ -15,7 +15,6 @@ draft = false
 [cover]
       image = "img/llm-ltr-cover.jpg"
       alt = "llm-ltr-cover"
-      caption = "Efficient LLM Scheduling by Learning to Rank"
 +++
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
