@@ -12,6 +12,10 @@ draft = false
     [[socialIcons.icon]]
       name = "github"
       url = "https://github.com/hao-ai-lab/vllm-ltr"
+[cover]
+      image = "img/llm-ltr-cover.jpg"
+      alt = "llm-ltr-cover"
+      caption = "Efficient LLM Scheduling by Learning to Rank"
 +++
 
 {{< socialBadges arxiv-index="2408.15792" github="hao-ai-lab/vllm-ltr" >}}
