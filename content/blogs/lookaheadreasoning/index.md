@@ -56,7 +56,7 @@ This leads to the central challenge: how does one actually perform step-level sp
 
 ## Lookahead Reasoning: Semantic Step Verification
 
-**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \$\hat{s}\_1, \hat{s}*2, \dots, \hat{s}*\gamma\$, ahead of time.
+**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \${\hat{s}\_1, \hat{s}_2, \dots}$, ahead of time.
 
 Rather than verifying each drafted step sequentially, a more powerful **target model** processes these speculatively in *parallelized step-level calls*. Specifically, for each \$i\$, the target model generates its own ground truth version \$s\_i\$ conditioned on the prior accepted context plus the previously drafted step \$\hat{s}\_{i-1}\$. Each of these ground truth step are generated in parallel. The key distinction between LR and speculative decoding is that we parallelize across *reasoning steps*, not individual tokens.
 
@@ -83,7 +83,7 @@ To increase the number of accepted reasoning steps, we explore tree-structured g
 
 We evaluate the end-to-end performance of **Lookahead Reasoning (LR)** across a diverse set of benchmarks using two model pairs: DeepSeek-R1-Distill (1.7B/32B) and Qwen3 (1.5B/32B). All experiments were conducted on NVIDIA H100 GPUs. Detailed results are presented in Table 1.
 
-A key observation is LR’s strong ability to preserve task accuracy. Across all benchmarks, LR achieves accuracies within a narrow margin of the target model’s autoregressive baseline—ranging from **1.0% above to 2.1% below**, demonstrating the semantic fidelity of step-level speculation.
+A key observation is LR’s strong ability to preserve task accuracy. Across all benchmarks, LR achieves accuracies within a narrow margin of the target model’s autoregressive baseline, ranging from **1.0% above to 2.1% below**, demonstrating the semantic fidelity of step-level speculation.
 
 In terms of efficiency, LR alone achieves speedups ranging from 1.04X to 1.71X, depending on the dataset and model combination. When combined with token-level speculative decoding (SD), the speedup is further amplified, achieving up to 2.11X total acceleration. These results confirm that LR offers substantial latency gains with minimal degradation in accuracy, and is complementary to existing token-level approaches. See more detailed analysis in our [paper](https://arxiv.org/abs/2506.19830).
 
