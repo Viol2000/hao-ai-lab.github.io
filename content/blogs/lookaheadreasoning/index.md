@@ -47,32 +47,35 @@ This limitation is especially problematic for large reasoning models, which typi
 
 ## Key Insight: Reasoning Happens in Steps, Not Just Tokens
 
-Our key insight is that reasoning is hierarchical: a full chain-of-thought breaks into discrete steps. Crucially, these steps only require semantic correctness, not a perfect token-for-token match to reach a valid conclusion. This observation unlocks a far more powerful, coarser-grained approach to speculative decoding.
+
+Our key insight is that **reasoning is inherently hierarchical**: a complete chain-of-thought naturally decomposes into **discrete steps**, each representing a semantically meaningful unit of progress. A *step* might consist of a subgoal (“let’s first isolate \$x\$”), a case split (“if \$x > 0\$ then…”), or a logical transformation (“apply the distributive law to simplify…”). Importantly, each step only needs to be **semantically correct**, rather than matching the target model’s output token-for-token, to contribute validly to the overall reasoning trace.
 
 By shifting speculation from the token-level to the step-level, we mitigate the primary bottleneck of traditional SD. Instead of being constrained by the low probability of guessing long, exact token sequences, we can now speculatively generate and verify multiple semantically complete reasoning steps in parallel. Intuitively, successfully speculating a multi-token reasoning step, which only needs to be semantically correct to be accepted, should be more achievable than speculating a long sequence of tokens that must match exactly. Moreover, this step-level approach is complementary to existing methods; token-level speculation can still operate within each verified step, creating layered acceleration for enhanced overall speedup.
 
 This leads to the central challenge: how does one actually perform step-level speculative decoding? At the token level, verification is straightforward: we compare the draft model's probability for the proposed token against the target model's probability and use rejection sampling to decide acceptance. But for step-level speculation, it's unclear how to determine whether a draft step aligns with the target model's distribution over the next reasoning step.
 
-## Lookahead Reasoning: Verify Steps in a Correct Way
+## Lookahead Reasoning: Semantic Step Verification
 
-Our algorithm, **Lookahead Reasoning (LR)**, accelerates the generation of long-form reasoning by introducing a novel form of step-level parallelism. The process begins with a lightweight draft model that proactively generates several candidate future steps, which we can call $\{\hat{s}_1, \hat{s}_2, ...\}$.
+**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \${\hat{s}\_1, \hat{s}*2, \dots, \hat{s}*\gamma}\$, ahead of time.
 
-Instead of processing these sequentially, the powerful target model takes all these drafted steps and performs a single, highly efficient **batched forward pass**. In this one pass, it generates its own "ground truth" versions of each step in parallel. The key to this process is that each target step $s_i$ is generated based on the prefix created by the *previous* drafted step, $\hat{s}_{i-1}$, allowing the model to explore multiple future reasoning paths at once.
+Rather than verifying each drafted step sequentially, a more powerful **target model** processes these speculatively in *parallelized step-level calls*. Specifically, for each \$i\$, the target model generates its own ground truth version \$s\_i\$ conditioned on the prior accepted context plus the previously drafted step \$\hat{s}\_{i-1}\$. Each of these ground truth step are generated in parallel. The key distinction between LR and speculative decoding is that we parallelize across *reasoning steps*, not individual tokens.
 
-Following this, a **semantic verifier** compares each draft step with its corresponding ground truth version, checking for semantic equivalence rather than a perfect textual match. The algorithm then accepts the entire sequence of correct drafts up until the first mismatch, appending the target's own generated step at that point of divergence.
+After generation, a **semantic verifier** compares each pair \$(\hat{s}\_i, s\_i)\$ to determine semantic equivalence, not just token-level match. The sequence of drafted steps is accepted up to the first mismatch; the remaining sequence is discarded, and decoding continues from the divergence point using the target model.
 
-The resulting speedup is significant. We effectively replace multiple slow, sequential calls to the target model with a single parallel operation. This allows us to generate and validate several correct reasoning steps for the latency cost of generating just one.
+This mechanism replaces multiple sequential step-by-step target model calls with a **speculative batch of parallelizable step generations**, reducing end-to-end latency. When drafts are accurate, LR allows the system to accepting multiple steps at once, significantly reducing total generation time while preserving fidelity.
+
+
+
 {{< image src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes $\gamma=3$ steps $\{\hat{s_1}$, $\hat{s_2}$, $\hat{s_3}\}$. The target model then generate $\{s_1$, $s_2$, $s_3\}$ based on prefixes and $\{\hat{s_1}$, $\hat{s_2}$, $\hat{s_3}\}$, respectively. Verifier checks if draft and target steps are semantically equivalent (e.g., $s_1 \approx  \hat{s_1}$). If the first two steps are equivalent but the third is not, Lookahead Reasoning outputs the verified draft steps ($\hat{s_1}$, $\hat{s_2}$) followed by the target's correction ($s_3$). This allows accepting multiple steps with only a lowered latency (e.g., $2t + T$) compared to the sequential target calls in autoregressive decoding (e.g., $3T$), where $t$ is draft step time and $T$ is target step time.">}}
 
 
-### Verifier Selection
+### Semantic Verifier Selection
 
-The choice of verifier ($V$) is a pivotal design consideration in LR. While an ideal semantic verifier ensures no accuracy loss, practical implementations face a primary trade-off between judgment precision and computational overhead;
-Furthermore, the strictness of verification (e.g., a threshold) presents a secondary trade-off, potentially boosting draft acceptance and speedup at the risk of degrading task accuracy from erroneously accepted steps. We explore three common paradigms for semantic assessment (i.e., LLM-as-a-Judge for nuanced evaluation, embedding-based verifier for efficient similarity, and target model scoring) each with distinct cost-precision profiles. 
+The choice of the semantic verifier is a pivotal design consideration in LR. While an ideal semantic verifier ensures no accuracy loss, practical implementations face a primary trade-off between judgment precision and computational overhead. In cases where semantic verification is imperfect, accepting more steps can lead to accumulated accuracy drops as errors compound.
 
 ### Multi-Branch Drafting
 
-To further increase the number of the accepted reasoning steps, we explore tree-structure generation where the draft model proposes multiple candidate steps at each speculative position. Specifically, instead of generating a single candidate chain, the draft $q$ can propose a set of $W$ alternative steps for each position $j$ in the draft sequence. Once a step is generated, the draft then proposes $W$ child  candidates in parallel for the subsequent position $j+1$. This branching process continues up to a maximum $\gamma$ steps, leading to an exponential growth in the total number of candidate sequences explores, i.e., $W^\gamma$. The target model $p$, however, still generate one single candidate continuation step for each position $j$ (based on the draft prefix). The verifier $V$ would then check if **any** of the $W$ proposed draft branches for that position $j$ semantically aligns with the target model's step. If such a match is found, that branch is accepted and other branches are discarded. This multi-branch strategy aims to boost the likelihood of speculative success, albeit at the cost of increased computational effort in the drafting phase.
+To increase the number of accepted reasoning steps, we explore tree-structured generation where the draft model proposes multiple candidate steps at each position. Instead of generating a single sequence, the draft model generates $W$ alternative steps for each position, creating $W^\gamma$ total candidate sequences. The target model still generates one step per position based on the draft prefix. The verifier then checks if any of the $W$ draft candidates at that position semantically matches the target's step. If a match is found, that branch is accepted and others are discarded. This multi-branch approach increases the likelihood of finding acceptable steps, though at higher drafting cost.
 
 
 ## End-to-End Performance of Lookahead Reasoning
@@ -101,9 +104,16 @@ We compare
 Figure 3 shows the orthogonality of LR and Speculative Decoding (SD). Subplot (a) shows that while LR alone with varying draft step number reaches a speedup around 1.4x, adding SD boosts this to approximately 1.9x. Similarly, subplot (b) illustrates that SD alone with varying Speculative Token Numbers peaks around 1.55x speedup, but combining it with LR again achieves up to 1.9×. Collectively, these results highlight that while either method in isolation offers limited gains, their combination consistently yields the most significant performance improvements, aligning with our theoretical analysis.
 
 
+## Cost Analysis
+
+Lookahead Reasoning involves three distinct models: a **target model**, a **draft model** responsible for speculative step generation, and a **judge model** that performs semantic verification. Naturally, this setup demands more GPU memory compared to running a single target model, as all three models must be loaded concurrently.
+
+In addition, the method executes multiple reasoning sequences in parallel, which enables better utilization of GPU parallelism. However, this comes at the cost of potentially wasted computation for speculative steps that are ultimately rejected during verification. While this parallelism offers significant speedup opportunities, it introduces a trade-off between computational efficiency and speculative accuracy.
+
+
 ## Get Started with Lookahead Reasoning
 
-We have implemented lookahead reasoning upon [vllm](https://github.com/vllm-project/vllm). Try to accelerate your LRM with [lookahead reasoning](https://github.com/hao-ai-lab/LookaheadDecoding)! 
+We have implemented lookahead reasoning upon [vllm](https://github.com/vllm-project/vllm). Try to accelerate your LRM with [lookahead reasoning](https://github.com/hao-ai-lab/LookaheadDecoding) in a few lines! 
 
 ## Citation
 
