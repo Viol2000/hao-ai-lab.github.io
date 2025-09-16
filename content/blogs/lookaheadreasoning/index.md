@@ -48,7 +48,7 @@ This limitation is especially problematic for large reasoning models, which typi
 ## Key Insight: Reasoning Happens in Steps, Not Just Tokens
 
 
-Our key insight is that **reasoning is inherently hierarchical**: a complete chain-of-thought naturally decomposes into **discrete steps**, each representing a semantically meaningful unit of progress. A *step* might consist of a subgoal (“let’s first isolate \$x\$”), a case split (“if \$x > 0\$ then…”), or a logical transformation (“apply the distributive law to simplify…”). Importantly, each step only needs to be **semantically correct**, rather than matching the target model’s output token-for-token, to contribute validly to the overall reasoning trace.
+Our key insight is that **reasoning is inherently hierarchical**: a complete chain-of-thought naturally decomposes into **discrete steps**, each representing a semantically meaningful unit of progress. A *step* might consist of a subgoal (“let’s first isolate \$x\$”), a case split (“if \$x > 0\$ then…”), or a logical transformation (“apply the distributive law to simplify…”). Importantly, each step only needs to be **semantically correct**, rather than matching the target model’s output token-for-token, to contribute validly to the overall reasoning trace. This insight is also shared by [concurrent work](https://arxiv.org/abs/2504.07891).
 
 By shifting speculation from the token-level to the step-level, we mitigate the primary bottleneck of traditional SD. Instead of being constrained by the low probability of guessing long, exact token sequences, we can now speculatively generate and verify multiple semantically complete reasoning steps in parallel. Intuitively, successfully speculating a multi-token reasoning step, which only needs to be semantically correct to be accepted, should be more achievable than speculating a long sequence of tokens that must match exactly. Moreover, this step-level approach is complementary to existing methods; token-level speculation can still operate within each verified step, creating layered acceleration for enhanced overall speedup.
 
@@ -56,7 +56,7 @@ This leads to the central challenge: how does one actually perform step-level sp
 
 ## Lookahead Reasoning: Semantic Step Verification
 
-**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \$\{\hat{s}\_1, \hat{s}*2, \dots, \hat{s}*\gamma\}\$, ahead of time.
+**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \$\hat{s}\_1, \hat{s}*2, \dots, \hat{s}*\gamma\$, ahead of time.
 
 Rather than verifying each drafted step sequentially, a more powerful **target model** processes these speculatively in *parallelized step-level calls*. Specifically, for each \$i\$, the target model generates its own ground truth version \$s\_i\$ conditioned on the prior accepted context plus the previously drafted step \$\hat{s}\_{i-1}\$. Each of these ground truth step are generated in parallel. The key distinction between LR and speculative decoding is that we parallelize across *reasoning steps*, not individual tokens.
 
@@ -85,7 +85,7 @@ We evaluate the end-to-end performance of **Lookahead Reasoning (LR)** across a 
 
 A key observation is LR’s strong ability to preserve task accuracy. Across all benchmarks, LR achieves accuracies within a narrow margin of the target model’s autoregressive baseline—ranging from **1.0% above to 2.1% below**, demonstrating the semantic fidelity of step-level speculation.
 
-In terms of efficiency, LR alone achieves speedups ranging from 1.04X to 1.71X, depending on the dataset and model combination. When combined with token-level speculative decoding (SD), the speedup is further amplified, achieving up to 2.11X total acceleration. These results confirm that LR offers substantial throughput gains with minimal degradation in accuracy, and is complementary to existing token-level approaches. See more detailed analysis in our [paper](https://arxiv.org/abs/2506.19830).
+In terms of efficiency, LR alone achieves speedups ranging from 1.04X to 1.71X, depending on the dataset and model combination. When combined with token-level speculative decoding (SD), the speedup is further amplified, achieving up to 2.11X total acceleration. These results confirm that LR offers substantial latency gains with minimal degradation in accuracy, and is complementary to existing token-level approaches. See more detailed analysis in our [paper](https://arxiv.org/abs/2506.19830).
 
 {{< image src="img/performance.png" alt="table" width="100%" title="Table 1: LR's Performance Across Datasets. Speedup is relative to the Autoregressive Decoding of the respective Target Model.">}}
 
