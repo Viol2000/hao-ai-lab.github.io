@@ -56,7 +56,7 @@ This leads to the central challenge: how does one actually perform step-level sp
 
 ## Lookahead Reasoning: Semantic Step Verification
 
-**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \${\hat{s}\_1, \hat{s}*2, \dots, \hat{s}*\gamma}\$, ahead of time.
+**Lookahead Reasoning (LR)** accelerates long-form reasoning by introducing a novel form of **step-level speculative decoding**. The core idea is to leverage a lightweight **draft model** to proactively generate a sequence of *drafted reasoning steps*, denoted \$\{\hat{s}\_1, \hat{s}*2, \dots, \hat{s}*\gamma\}\$, ahead of time.
 
 Rather than verifying each drafted step sequentially, a more powerful **target model** processes these speculatively in *parallelized step-level calls*. Specifically, for each \$i\$, the target model generates its own ground truth version \$s\_i\$ conditioned on the prior accepted context plus the previously drafted step \$\hat{s}\_{i-1}\$. Each of these ground truth step are generated in parallel. The key distinction between LR and speculative decoding is that we parallelize across *reasoning steps*, not individual tokens.
 
@@ -80,29 +80,14 @@ To increase the number of accepted reasoning steps, we explore tree-structured g
 
 ## End-to-End Performance of Lookahead Reasoning
 
-We evaluated the end-to-end performance of LR across diverse benchmarks using DeepSeek-R1-Distill and Qwen3 pairs. The detailed results are presented in Table 1. A key finding is LR's consistent ability to preseve task accuracy. Across a variety of benchmarks, LR's accuracy varies within a narrow range relative to the target model's autoregressive baseline, from approximately 1.0\% above to 2.1\% below baseline performance. This accuracy preservation contrasts with  SpecReason, which exhibited more noticeable accuracy reductions on several tasks (e.g., dropping from $91.8\%$ to $85.9\%$ on GSM8K with Deepseek-R1, a $\sim6\%$ decrease). This underscores LR's design principle of preserving output via robust semantic verification.
+
+We evaluate the end-to-end performance of **Lookahead Reasoning (LR)** across a diverse set of benchmarks using two model pairs: DeepSeek-R1-Distill (1.7B/32B) and Qwen3 (1.5B/32B). All experiments were conducted on NVIDIA H100 GPUs. Detailed results are presented in Table 1.
+
+A key observation is LR’s strong ability to preserve task accuracy. Across all benchmarks, LR achieves accuracies within a narrow margin of the target model’s autoregressive baseline—ranging from **1.0% above to 2.1% below**, demonstrating the semantic fidelity of step-level speculation.
+
+In terms of efficiency, LR alone achieves speedups ranging from 1.04X to 1.71X, depending on the dataset and model combination. When combined with token-level speculative decoding (SD), the speedup is further amplified, achieving up to 2.11X total acceleration. These results confirm that LR offers substantial throughput gains with minimal degradation in accuracy, and is complementary to existing token-level approaches. See more detailed analysis in our [paper](https://arxiv.org/abs/2506.19830).
 
 {{< image src="img/performance.png" alt="table" width="100%" title="Table 1: LR's Performance Across Datasets. Speedup is relative to the Autoregressive Decoding of the respective Target Model.">}}
-
-
-Furthermore, LR achieves strong accuracy while maintaining high step acceptance rates, often above 50\% and reaching up to 63\%.
-These substantial acceptance rates empirically support our initial insight that a smaller draft model can effectively predict semantically correct reasoning steps for a larger target model. LR also delivers significant efficiency gains. Its step-level parallelism is orthogonal to token-level speculative decoding, and their synergy produces substantial speedups. LR alone achieves speedups ranging from 1.04x to 1.71x across various benchmarks and model pairs. When combined with n-gram SD, the total speedup is further amplified, reaching up to 2.11x. This combined approach consistently outperforms n-gram SD alone, demonstrating the added value of step-level speculation. These results, consistent across both Deepseek-R1 and Qwen3 families, underscore the generalizable acceleration benefits of LR.
-
-### Combining LR with SD
-
-To empirically validate the orthogonality of LR with speculative decoding, we conducted experiments using prompt-lookup decoding (n-gram) on the AIME dataset. 
-
-{{< image src="img/ablation.png" alt="combine" width="100%" title="Figure 3: Orthogonality of Lookahead Reasoning and Speculative Decoding. When used alone, the speedup from both LR and SD is limited by their draft length ($\gamma$).">}}
-
-Figure 3 shows the orthogonality of LR and Speculative Decoding (SD). Subplot (a) shows that while LR alone with varying draft step number reaches a speedup around 1.4x, adding SD boosts this to approximately 1.9x. Similarly, subplot (b) illustrates that SD alone with varying Speculative Token Numbers peaks around 1.55x speedup, but combining it with LR again achieves up to 1.9×. Collectively, these results highlight that while either method in isolation offers limited gains, their combination consistently yields the most significant performance improvements, aligning with our theoretical analysis.
-
-### Verifiers
-
-We compare 
-{{< image src="img/verifier.png" alt="combine" width="100%" title="Figure 3: Orthogonality of Lookahead Reasoning and Speculative Decoding. When used alone, the speedup from both LR and SD is limited by their draft length ($\gamma$).">}}
-
-Figure 3 shows the orthogonality of LR and Speculative Decoding (SD). Subplot (a) shows that while LR alone with varying draft step number reaches a speedup around 1.4x, adding SD boosts this to approximately 1.9x. Similarly, subplot (b) illustrates that SD alone with varying Speculative Token Numbers peaks around 1.55x speedup, but combining it with LR again achieves up to 1.9×. Collectively, these results highlight that while either method in isolation offers limited gains, their combination consistently yields the most significant performance improvements, aligning with our theoretical analysis.
-
 
 ## Cost Analysis
 
