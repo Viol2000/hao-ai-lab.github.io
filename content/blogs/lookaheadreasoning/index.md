@@ -15,40 +15,50 @@ draft = false
 [cover]
       image = "/img/lr-acc-demo.gif"
       alt = "Lookahead Reasoning Demo"
-      caption = "modify this caption"
+      caption = "Demo of speedups by lookahead reasoning."
 +++
 
-{{< socialBadges arxiv-index="2506.19830" >}}
+{{< socialBadges arxiv-index="2506.19830" github="hao-ai-lab/LookaheadReasoning">}}
 
 {{< justify >}}
 
-**TL;DR:** We propose **Lookahead Reasoning (LR)**, a technique that significantly accelerates large reasoning models(LRMs) and complements existing speculative decoding methods. Traditional token-level speculative decoding suffers from limited gains because the probability of correctly guessing a long sequence decreases exponentially with length. In contrast, LR operates at the step level, proposing future reasoning steps instead of individual tokens. This is much more effective since a proposed step only needs to be semantically correct, rather than matching exactly word for word. Importantly, LR is orthogonal to token-level approaches and can be combined with them to achieve multiplicative speedups. For example, on the AIME24 benchmark, our combined method increases the speedup from 1.4x to 2.1x without any loss in accuracy
+**TL;DR:** We propose **Lookahead Reasoning (LR)**, a technique that significantly accelerates large reasoning models(LRMs) and complements existing speculative decoding methods. Traditional token-level speculative decoding suffers from limited gains because the probability of correctly guessing a long sequence decreases exponentially with length. In contrast, LR operates at the step level, proposing future reasoning steps instead of individual tokens. This is much more effective since a proposed step only needs to be semantically correct, rather than matching exactly word for word. Importantly, LR is orthogonal to token-level approaches and can be combined with them to achieve multiplicative speedups. For example, on the GSM8K benchmark, our combined method increases the speedup from 1.4x to 2.1x without loss in accuracy
 
 {{< /justify >}}
 
 
 ## Background: Speedup of Speculative Decoding Is Upper-Bounded
 
-Speculative decoding (SD) accelerates language model decoding by using a small drafter model to propose a sequence of future tokens (denoted by $\gamma$), which are then verified in parallel by the larger target model. If the entire $\gamma$-token sequence is accepted, the target model can process $\gamma$ tokens simultaneously in a single forward pass and advance its state by $\gamma + 1$ positions, bypassing the usual step-by-step autoregressive process.
+LLM inference is historically autoregressive and sequential. Each new token depends on all the tokens before it. This makes it hard to run in parallel, so a lot of GPU compute is left unused. Speculative decoding (SD) helps a little: a small drafter guesses a few future tokens, and the large model checks them in parallel. In other words, SD uses extra FLOPs to save some sequential steps. At the same time, GPUs keep getting much faster. For example, NVIDIA's H200, B200, and Rubin chips bring huge jumps in peak FLOPs. It is natural to think that giving more FLOPs to SD should keep making inference faster.
 
-However, the speedup achievable by token-level speculative decoding is fundamentally limited. Let $\alpha\in(0,1)$ denote the average per-token acceptance rate, $\gamma$ the number of drafted tokens, and $c$ the draft-to-target per-token latency ratio. Under the standard independence assumption, the expected number of target tokens validated in a single target forward pass is $1+\alpha+\cdots+\alpha^{\gamma}=\tfrac{1-\alpha^{\gamma+1}}{1-\alpha}$. The resulting expected wall-time speedup factor (Theorem 3.8 in [the speculative decoding paper](https://arxiv.org/abs/2211.17192)) is
+But in reality, token-level SD quickly hits limits. It only works well if a whole block of drafted tokens is correct. Longer drafts usually fail, so the acceptance rate drops. Drafting and checking add overhead. Wrong drafts waste compute. As a result, the overall speedup stops growing, even though GPUs are much more powerful. This means token-level SD by itself cannot take full advantage of the new FLOPs. To go further, we need another dimension beyond tokens. For example, methods that work at the level of reasoning steps instead of individual tokens.
+
+These limits are not only seen in practice but are also clear from the math. Let \$\alpha\in(0,1)\$ be the average per-token acceptance rate, \$\gamma\$ the number of drafted tokens, and \$c\$ the drafter-to-target per-token latency ratio. Under the standard independence assumption, the expected number of target tokens validated in a single target forward pass is
+
+
+$$
+1+\alpha+\cdots+\alpha^\gamma \;=\; \frac{1-\alpha^{\gamma+1}}{1-\alpha}.
+$$
+
+
+The resulting expected wall-time speedup (cf. Theorem 3.8 in [the speculative decoding paper](https://arxiv.org/abs/2211.17192)) is
+
 
 $$
 S(\alpha,\gamma,c)=\frac{1-\alpha^{\gamma+1}}{(1-\alpha)(\gamma c+1)}.
 $$
 
 
-This formulation makes the fundamental limitation of the speedup explicit:
-as $\gamma \to \infty$, the speedup saturates at the theoretical upper bound of $\frac{1}{1 - \alpha}$, regardless of how small the overhead $c$ is. Even in the idealized zero-overhead limit $c \to 0$, the speedup cannot exceed this bound. For any nonzero overhead ($c > 0$), increasing $\gamma$ further leads to diminishing returns, as the denominator $(\gamma c + 1)$ dominates. Thus, the speedup remains fundamentally capped.
+This expression makes the bottleneck explicit. As $\gamma$ grows, the benefit flattens out and the speedup can never exceed $1/(1-\alpha)$, no matter how much GPU compute is available. Even with zero overhead, the bound holds; with any overhead, the returns shrink even faster. In other words, token-level SD has a hard ceiling that stronger GPUs like H200, B200, or Rubin cannot break.
 
-This limitation is especially problematic for large reasoning models, which typically produce long, structured outputs with step-by-step logic. Since speculative decoding can only skip a small number of tokens at a time and this does not scale with the total output length, its contribution to end-to-end latency reduction becomes marginal for long-form reasoning tasks.
+This ceiling is especially problematic for large reasoning models that generate long, structured outputs with step-by-step logic. They need many sequential steps, but token-level SD only skips a few tokens at a time. As a result, the end-to-end speedup is small compared to the total reasoning time.
 
 
 
 ## Key Insight: Reasoning Happens in Steps, Not Just Tokens
 
 
-Our key insight is that **reasoning is inherently hierarchical**: a complete chain-of-thought naturally decomposes into **discrete steps**, each representing a semantically meaningful unit of progress. A *step* might consist of a subgoal (“let’s first isolate \$x\$”), a case split (“if \$x > 0\$ then…”), or a logical transformation (“apply the distributive law to simplify…”). Importantly, each step only needs to be **semantically correct**, rather than matching the target model’s output token-for-token, to contribute validly to the overall reasoning trace. This insight is also shared by [concurrent work](https://arxiv.org/abs/2504.07891).
+Our key insight is that **reasoning is inherently hierarchical**: a complete chain-of-thought naturally decomposes into **discrete steps**, each representing a semantically meaningful unit of progress. A *step* might consist of a subgoal (“let's first isolate \$x\$”), a case split (“if \$x > 0\$ then…”), or a logical transformation (“apply the distributive law to simplify…”). Importantly, each step only needs to be **semantically correct**, rather than matching the target model's output token-for-token, to contribute validly to the overall reasoning trace. This insight is also shared by [concurrent work](https://arxiv.org/abs/2504.07891).
 
 By shifting speculation from the token-level to the step-level, we mitigate the primary bottleneck of traditional SD. Instead of being constrained by the low probability of guessing long, exact token sequences, we can now speculatively generate and verify multiple semantically complete reasoning steps in parallel. Intuitively, successfully speculating a multi-token reasoning step, which only needs to be semantically correct to be accepted, should be more achievable than speculating a long sequence of tokens that must match exactly. Moreover, this step-level approach is complementary to existing methods; token-level speculation can still operate within each verified step, creating layered acceleration for enhanced overall speedup.
 
@@ -83,7 +93,7 @@ To increase the number of accepted reasoning steps, we explore tree-structured g
 
 We evaluate the end-to-end performance of **Lookahead Reasoning (LR)** across a diverse set of benchmarks using two model pairs: DeepSeek-R1-Distill (1.7B/32B) and Qwen3 (1.5B/32B). All experiments were conducted on NVIDIA H100 GPUs. Detailed results are presented in Table 1.
 
-A key observation is LR’s strong ability to preserve task accuracy. Across all benchmarks, LR achieves accuracies within a narrow margin of the target model’s autoregressive baseline, ranging from **1.0% above to 2.1% below**, demonstrating the semantic fidelity of step-level speculation.
+A key observation is LR's strong ability to preserve task accuracy. Across all benchmarks, LR achieves accuracies within a narrow margin of the target model's autoregressive baseline, ranging from **1.0% above to 2.1% below**, demonstrating the semantic fidelity of step-level speculation.
 
 In terms of efficiency, LR alone achieves speedups ranging from 1.04X to 1.71X, depending on the dataset and model combination. When combined with token-level speculative decoding (SD), the speedup is further amplified, achieving up to 2.11X total acceleration. These results confirm that LR offers substantial latency gains with minimal degradation in accuracy, and is complementary to existing token-level approaches. See more detailed analysis in our [paper](https://arxiv.org/abs/2506.19830).
 
@@ -98,7 +108,7 @@ In addition, the method executes multiple reasoning sequences in parallel, which
 
 ## Get Started with Lookahead Reasoning
 
-We have implemented lookahead reasoning upon [vllm](https://github.com/vllm-project/vllm). Try to accelerate your LRM with [lookahead reasoning](https://github.com/hao-ai-lab/LookaheadDecoding) in a few lines! 
+We have implemented lookahead reasoning upon [vllm](https://github.com/vllm-project/vllm). Try to accelerate your LRM with [lookahead reasoning](https://github.com/hao-ai-lab/LookaheadReasoning) in a few lines! 
 
 ## Citation
 
