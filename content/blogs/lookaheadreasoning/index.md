@@ -20,12 +20,7 @@ draft = false
 
 {{< socialBadges arxiv-index="2506.19830" github="hao-ai-lab/LookaheadReasoning">}}
 
-{{< justify >}}
-
 **TL;DR:** We propose **Lookahead Reasoning (LR)**, a technique that significantly accelerates large reasoning models(LRMs) and complements existing speculative decoding methods. Traditional token-level speculative decoding suffers from limited gains because the probability of correctly guessing a long sequence decreases exponentially with length. In contrast, LR operates at the step level, proposing future reasoning steps instead of individual tokens. This is much more effective since a proposed step only needs to be semantically correct, rather than matching exactly word for word. Importantly, LR is orthogonal to token-level approaches and can be combined with them to achieve multiplicative speedups. For example, on the GSM8K benchmark, our combined method increases the speedup from 1.4x to 2.1x without loss in accuracy
-
-{{< /justify >}}
-
 
 ## Background: Speedup of Speculative Decoding Is Upper-Bounded
 
