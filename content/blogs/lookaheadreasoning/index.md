@@ -42,7 +42,6 @@ But in reality, token-level SD quickly hits limits. It only works well if a whol
 
 To see why token-only SD has a hard ceiling, let's read the upper bound directly from a simple model. Let \$\alpha\in(0,1)\$ be the average per-token acceptance rate, \$\gamma\$ the number of drafted tokens, and \$c\$ the drafter-to-target per-token latency ratio. Under the standard independence assumption, the expected number of target tokens validated in a single target forward pass is
 
-
 $$
 1+\alpha+\cdots+\alpha^\gamma \;=\; \frac{1-\alpha^{\gamma+1}}{1-\alpha}.
 $$
@@ -67,17 +66,15 @@ This ceiling is especially problematic for large reasoning models that generate 
 
 
 
-
-
-
 {{< justify >}}
 
 Our key insight is that **reasoning is inherently hierarchical**: a chain-of-thought naturally decomposes into **discrete steps**, each representing a semantically meaningful unit of progress. A *step* might consist of a subgoal ("let's first isolate \$x\$"), a case split ("if \$x > 0\$ then..."), or a logical transformation ("apply the distributive law to simplify..."). A step only needs to be **semantically correct** to advance the proof or derivation; it need not match the target model **token-for-token**, to contribute validly to the overall reasoning trace. This insight is also shared by [concurrent work](https://arxiv.org/abs/2504.07891).
 
+{{< /justify >}}
+
 {{< image src="img/TwoDimensionTogether.jpg" alt="orthgonal" width="100%" title="Figure 3: Two-Dimensional Speculation (Step X Token). A step-drafter proposes semantically complete steps; accepted steps (green) are verified and then accelerated further with token-level SD inside each step. Because the step and token axes are orthogonal, splitting the budget across both yields layered, near-multiplicative speedups and delays diminishing returns."
 >}}
 
-{{< /justify >}}
 
 {{< justify >}}
 
