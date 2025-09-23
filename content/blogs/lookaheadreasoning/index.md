@@ -89,7 +89,8 @@ This mechanism replaces multiple sequential step-by-step target model calls with
 
 {{< /justify >}}
 
-{{< image src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes \$\gamma=3\$ steps ">}}
+{{< image src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes \$\gamma=3\$ steps . The target model then generate \$s_1, s_2, s_3\$ based on prefixes and , respectively. Verifier checks if draft and target steps are semantically equivalent (e.g., ). If the first two steps are equivalent but the third is not, Lookahead Reasoning outputs the verified draft steps () followed by the target's correction (\$s_3\$). This allows accepting multiple steps with only a lowered latency (e.g., \$2t + T\$) compared to the sequential target calls in autoregressive decoding (e.g., \$3T\$), where $t$ is draft step time and \$T\$ is target step time.
+">}}
 
 
 ### Semantic Verifier Selection
