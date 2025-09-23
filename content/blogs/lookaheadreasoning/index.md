@@ -89,7 +89,7 @@ This mechanism replaces multiple sequential step-by-step target model calls with
 
 {{< /justify >}}
 
-{{< image src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes \$\gamma=3\$ steps ŝ₁, ŝ,\hat\{s_3\}\$.">}}
+{{< image src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes \$\gamma=3\$ steps ŝ₁, .">}}
 
 
 ### Semantic Verifier Selection
