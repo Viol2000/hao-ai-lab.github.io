@@ -28,7 +28,7 @@ LLM inference is historically autoregressive and sequential. Each new token depe
 
 But in reality, token-level SD quickly hits limits. It only works well if a whole block of drafted tokens is correct. Longer drafts usually fail, so the acceptance rate drops. Drafting and checking add overhead. Wrong drafts waste compute. As a result, the overall speedup stops growing, even though GPUs are much more powerful. This means token-level SD by itself cannot take full advantage of the new FLOPs. To go further, we need another dimension beyond tokens. Theoretically, methods that work at the level of reasoning steps instead of individual tokens can yield higher overall speedups (Figure 1).
 
-{{< image src="img/sd_two_dim_product.gif" alt="background" width="100%" title="Figure 1: Theoretical speedup vs. speculative length. Pure Speculative Decoding (SD) allocates the entire budget to token-level drafting, while Step+level+Token-level SD splits it evenly between step-level lookahead and SD. This joint allocation yields higher peak speedup and delays saturation, enabling more effective utilization of high-throughput GPUs such as H200, B200, and Rubin." >}}
+<img  src="img/sd_two_dim_product.gif" alt="background" width="100%" title="Figure 1: Theoretical speedup vs. speculative length. Pure Speculative Decoding (SD) allocates the entire budget to token-level drafting, while Step+level+Token-level SD splits it evenly between step-level lookahead and SD. This joint allocation yields higher peak speedup and delays saturation, enabling more effective utilization of high-throughput GPUs such as H200, B200, and Rubin."  />
 
 
 These limits are not only seen in practice but are also clear from the math. Let \$\alpha\in(0,1)\$ be the average per-token acceptance rate, \$\gamma\$ the number of drafted tokens, and \$c\$ the drafter-to-target per-token latency ratio. Under the standard independence assumption, the expected number of target tokens validated in a single target forward pass is
@@ -74,7 +74,7 @@ This mechanism replaces multiple sequential step-by-step target model calls with
 
 
 
-{{< image src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes $\gamma=3$ steps $\{\hat{s_1}$, $\hat{s_2}$, $\hat{s_3}\}$. The target model then generate $\{s_1$, $s_2$, $s_3\}$ based on prefixes and $\{\hat{s_1}$, $\hat{s_2}$, $\hat{s_3}\}$, respectively. Verifier checks if draft and target steps are semantically equivalent (e.g., $s_1 \approx  \hat{s_1}$). If the first two steps are equivalent but the third is not, Lookahead Reasoning outputs the verified draft steps ($\hat{s_1}$, $\hat{s_2}$) followed by the target's correction ($s_3$). This allows accepting multiple steps with only a lowered latency (e.g., $2t + T$) compared to the sequential target calls in autoregressive decoding (e.g., $3T$), where $t$ is draft step time and $T$ is target step time." >}}
+<img  src="img/LookaheadReasoningStep.jpg" alt="LookaheadReasoning" width="100%" title="Figure 2: One cycle of Lookahead Reasoning. The draft model proposes $\gamma=3$ steps $\{\hat{s_1}$, $\hat{s_2}$, $\hat{s_3}\}$. The target model then generate $\{s_1$, $s_2$, $s_3\}$ based on prefixes and $\{\hat{s_1}$, $\hat{s_2}$, $\hat{s_3}\}$, respectively. Verifier checks if draft and target steps are semantically equivalent (e.g., $s_1 \approx  \hat{s_1}$). If the first two steps are equivalent but the third is not, Lookahead Reasoning outputs the verified draft steps ($\hat{s_1}$, $\hat{s_2}$) followed by the target's correction ($s_3$). This allows accepting multiple steps with only a lowered latency (e.g., $2t + T$) compared to the sequential target calls in autoregressive decoding (e.g., $3T$), where $t$ is draft step time and $T$ is target step time." />
 
 
 ### Semantic Verifier Selection
@@ -96,7 +96,7 @@ A key observation is LR's strong ability to preserve task accuracy. Across all b
 In terms of efficiency, LR alone achieves speedups ranging from 1.04X to 1.71X, depending on the dataset and model combination. When combined with token-level speculative decoding (SD), the speedup is further amplified, achieving up to 2.11X total acceleration. These results confirm that LR offers substantial latency gains with minimal degradation in accuracy, and is complementary to existing token-level approaches. See more detailed analysis in our [paper](https://arxiv.org/abs/2506.19830).
 
 
-{{< image src="img/performance.png" alt="table" width="100%" title="Table 1: LR's Performance Across Datasets. Speedup is relative to the Autoregressive Decoding of the respective Target Model." >}}
+<img  src="img/performance.png" alt="table" width="100%" title="Table 1: LR's Performance Across Datasets. Speedup is relative to the Autoregressive Decoding of the respective Target Model." />
 
 
 ## Cost Analysis
